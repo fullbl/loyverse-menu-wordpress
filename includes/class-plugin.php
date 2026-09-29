@@ -33,8 +33,6 @@ class MFL_Plugin {
 	 * Constructor.
 	 */
 	private function __construct() {
-		add_action( 'init', array( $this, 'load_textdomain' ) );
-
 		MFL_CPT::init();
 		MFL_Settings::init();
 		MFL_Cron::init();
@@ -43,13 +41,6 @@ class MFL_Plugin {
 		MFL_Assets::init();
 		MFL_Locks::init();
 		MFL_Templates::init();
-	}
-
-	/**
-	 * Load translations.
-	 */
-	public function load_textdomain(): void {
-		load_plugin_textdomain( 'menu-for-loyverse', false, dirname( MFL_PLUGIN_BASENAME ) . '/languages' );
 	}
 
 	/**
