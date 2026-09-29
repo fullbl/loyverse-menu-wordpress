@@ -22,16 +22,18 @@ $queried_term = get_queried_object();
 	</header>
 	<?php
 	$slug = $queried_term instanceof WP_Term ? $queried_term->slug : '';
-	echo do_shortcode(
-		sprintf(
-			'[fbmsl_menu category="%s" layout="%s" columns="%d" show_images="%d" show_descriptions="%d" show_prices="%d" show_variants="%d"]',
-			esc_attr( $slug ),
-			esc_attr( $settings['layout'] ),
-			(int) $settings['columns'],
-			(int) $settings['show_images'],
-			(int) $settings['show_descriptions'],
-			(int) $settings['show_prices'],
-			(int) $settings['show_variants']
+	echo wp_kses_post(
+		do_shortcode(
+			sprintf(
+				'[fbmsl_menu category="%s" layout="%s" columns="%d" show_images="%d" show_descriptions="%d" show_prices="%d" show_variants="%d"]',
+				esc_attr( $slug ),
+				esc_attr( $settings['layout'] ),
+				(int) $settings['columns'],
+				(int) $settings['show_images'],
+				(int) $settings['show_descriptions'],
+				(int) $settings['show_prices'],
+				(int) $settings['show_variants']
+			)
 		)
 	);
 	?>

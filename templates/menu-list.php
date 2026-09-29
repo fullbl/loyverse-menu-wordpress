@@ -74,7 +74,7 @@ if ( $group_by_category ) {
 				<li class="fbmsl-menu__item">
 					<?php if ( $show_images && has_post_thumbnail( $item_post_id ) ) : ?>
 						<a class="fbmsl-menu__image" href="<?php echo esc_url( get_permalink( $item_post_id ) ); ?>">
-							<?php echo get_the_post_thumbnail( $item_post_id, 'medium' ); ?>
+							<?php echo wp_kses_post( get_the_post_thumbnail( $item_post_id, 'medium' ) ); ?>
 						</a>
 					<?php endif; ?>
 					<div class="fbmsl-menu__body">
