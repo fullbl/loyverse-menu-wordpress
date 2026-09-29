@@ -2,27 +2,27 @@
 /**
  * Single menu item template.
  *
- * @package LoyverseMenu
+ * @package MenuForLoyverse
  */
 
 defined( 'ABSPATH' ) || exit;
 
 get_header();
 
-$settings = LM_Settings::get_settings();
+$settings = MFL_Settings::get_settings();
 ?>
 <main class="lm-single">
 	<?php
 	while ( have_posts() ) :
 		the_post();
-		$post_id  = get_the_ID();
-		$price    = get_post_meta( $post_id, '_lm_price', true );
-		$variants = LM_Templates::get_variants( $post_id );
-		$terms    = get_the_terms( $post_id, LM_CPT::TAXONOMY );
+		$item_post_id = get_the_ID();
+		$price        = get_post_meta( $item_post_id, '_mfl_price', true );
+		$variants     = MFL_Templates::get_variants( $item_post_id );
+		$terms        = get_the_terms( $item_post_id, MFL_CPT::TAXONOMY );
 		?>
 		<article <?php post_class( 'lm-single__article' ); ?>>
 			<p class="lm-single__breadcrumb">
-				<a href="<?php echo esc_url( get_post_type_archive_link( LM_CPT::POST_TYPE ) ); ?>"><?php echo esc_html__( 'Menu', 'loyverse-menu' ); ?></a>
+				<a href="<?php echo esc_url( get_post_type_archive_link( MFL_CPT::POST_TYPE ) ); ?>"><?php echo esc_html__( 'Menu', 'menu-for-loyverse' ); ?></a>
 				<?php if ( $terms && ! is_wp_error( $terms ) ) : ?>
 					<span aria-hidden="true"> / </span>
 					<a href="<?php echo esc_url( get_term_link( $terms[0] ) ); ?>"><?php echo esc_html( $terms[0]->name ); ?></a>
@@ -38,7 +38,7 @@ $settings = LM_Settings::get_settings();
 			<header class="lm-single__header">
 				<h1 class="lm-single__title"><?php the_title(); ?></h1>
 				<?php if ( $settings['show_prices'] && '' !== $price && null !== $price ) : ?>
-					<p class="lm-single__price"><?php echo esc_html( LM_Templates::format_price( $price ) ); ?></p>
+					<p class="lm-single__price"><?php echo esc_html( MFL_Templates::format_price( $price ) ); ?></p>
 				<?php endif; ?>
 			</header>
 
@@ -71,7 +71,7 @@ $settings = LM_Settings::get_settings();
 						<li>
 							<span><?php echo esc_html( implode( ' / ', $label_parts ) ); ?></span>
 							<?php if ( $settings['show_prices'] && isset( $variant['price'] ) && null !== $variant['price'] ) : ?>
-								<span><?php echo esc_html( LM_Templates::format_price( $variant['price'] ) ); ?></span>
+								<span><?php echo esc_html( MFL_Templates::format_price( $variant['price'] ) ); ?></span>
 							<?php endif; ?>
 						</li>
 					<?php endforeach; ?>

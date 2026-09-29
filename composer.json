@@ -1,5 +1,5 @@
 {
-  "name": "fullbl/loyverse-menu",
+  "name": "fullbl/menu-for-loyverse",
   "description": "WordPress plugin to sync Loyverse POS menus.",
   "type": "wordpress-plugin",
   "license": "GPL-2.0-or-later",
@@ -9,14 +9,25 @@
   "require-dev": {
     "phpunit/phpunit": "^9.6",
     "yoast/phpunit-polyfills": "^2.0",
-    "brain/monkey": "^2.6"
+    "brain/monkey": "^2.6",
+    "wp-coding-standards/wpcs": "^3.1",
+    "phpcompatibility/phpcompatibility-wp": "^2.1",
+    "dealerdirect/phpcodesniffer-composer-installer": "^1.0"
   },
   "autoload-dev": {
     "psr-4": {
-      "LoyverseMenu\\Tests\\": "tests/"
+      "MenuForLoyverse\\Tests\\": "tests/"
     }
   },
   "scripts": {
-    "test": "phpunit"
+    "test": "phpunit",
+    "phpcs": "phpcs",
+    "phpcbf": "phpcbf",
+    "build": "bash bin/build-release.sh"
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
   }
 }

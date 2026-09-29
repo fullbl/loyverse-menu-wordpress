@@ -2,7 +2,7 @@
 /**
  * Shortcode renderer.
  *
- * @package LoyverseMenu
+ * @package MenuForLoyverse
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,13 +10,14 @@ defined( 'ABSPATH' ) || exit;
 /**
  * [loyverse_menu] shortcode.
  */
-class LM_Shortcode {
+class MFL_Shortcode {
 
 	/**
 	 * Register shortcode.
 	 */
 	public static function init(): void {
 		add_shortcode( 'loyverse_menu', array( __CLASS__, 'render' ) );
+		add_shortcode( 'menu_for_loyverse', array( __CLASS__, 'render' ) );
 	}
 
 	/**
@@ -26,7 +27,7 @@ class LM_Shortcode {
 	 * @return string
 	 */
 	public static function render( $atts ): string {
-		$settings = LM_Settings::get_settings();
+		$settings = MFL_Settings::get_settings();
 		$atts     = shortcode_atts(
 			array(
 				'category'          => '',
@@ -41,11 +42,11 @@ class LM_Shortcode {
 			'loyverse_menu'
 		);
 
-		$layout = in_array( $atts['layout'], array( 'grid', 'list' ), true ) ? $atts['layout'] : 'grid';
+		$layout  = in_array( $atts['layout'], array( 'grid', 'list' ), true ) ? $atts['layout'] : 'grid';
 		$columns = max( 1, min( 3, (int) $atts['columns'] ) );
 
 		$query_args = array(
-			'post_type'      => LM_CPT::POST_TYPE,
+			'post_type'      => MFL_CPT::POST_TYPE,
 			'post_status'    => 'publish',
 			'posts_per_page' => -1,
 			'orderby'        => 'title',
@@ -55,7 +56,7 @@ class LM_Shortcode {
 		if ( $atts['category'] ) {
 			$query_args['tax_query'] = array(
 				array(
-					'taxonomy' => LM_CPT::TAXONOMY,
+					'taxonomy' => MFL_CPT::TAXONOMY,
 					'field'    => is_numeric( $atts['category'] ) ? 'term_id' : 'slug',
 					'terms'    => $atts['category'],
 				),
@@ -76,7 +77,7 @@ class LM_Shortcode {
 		);
 
 		ob_start();
-		LM_Templates::load( 'menu-list', $context );
+		MFL_Templates::load( 'menu-list', $context );
 		return (string) ob_get_clean();
 	}
 }

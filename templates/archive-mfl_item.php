@@ -2,31 +2,31 @@
 /**
  * Archive template for menu items.
  *
- * @package LoyverseMenu
+ * @package MenuForLoyverse
  */
 
 defined( 'ABSPATH' ) || exit;
 
 get_header();
 
-$settings = LM_Settings::get_settings();
+$settings = MFL_Settings::get_settings();
 ?>
 <main class="lm-archive">
 	<header class="lm-archive__header">
-		<h1 class="lm-archive__title"><?php echo esc_html__( 'Menu', 'loyverse-menu' ); ?></h1>
+		<h1 class="lm-archive__title"><?php echo esc_html__( 'Menu', 'menu-for-loyverse' ); ?></h1>
 		<?php
 		$terms = get_terms(
 			array(
-				'taxonomy'   => LM_CPT::TAXONOMY,
+				'taxonomy'   => MFL_CPT::TAXONOMY,
 				'hide_empty' => true,
 			)
 		);
 		if ( ! is_wp_error( $terms ) && $terms ) :
 			?>
-			<nav class="lm-archive__nav" aria-label="<?php echo esc_attr__( 'Menu categories', 'loyverse-menu' ); ?>">
+			<nav class="lm-archive__nav" aria-label="<?php echo esc_attr__( 'Menu categories', 'menu-for-loyverse' ); ?>">
 				<ul>
-					<?php foreach ( $terms as $term ) : ?>
-						<li><a href="<?php echo esc_url( get_term_link( $term ) ); ?>"><?php echo esc_html( $term->name ); ?></a></li>
+					<?php foreach ( $terms as $menu_term ) : ?>
+						<li><a href="<?php echo esc_url( get_term_link( $menu_term ) ); ?>"><?php echo esc_html( $menu_term->name ); ?></a></li>
 					<?php endforeach; ?>
 				</ul>
 			</nav>

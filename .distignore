@@ -1,0 +1,25 @@
+# Development and VCS (excluded from WordPress.org distribution zip)
+.git
+.github
+.gitignore
+.distignore
+.editorconfig
+.wp-env.json
+.wp-env.override.json
+node_modules
+vendor
+tests
+phpunit.xml.dist
+.phpunit.result.cache
+composer.json
+composer.lock
+composer.phar
+package.json
+package-lock.json
+phpcs.xml.dist
+bin
+dist
+README.md
+.wordpress-org
+*.md
+!readme.txt
