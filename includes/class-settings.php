@@ -2,7 +2,7 @@
 /**
  * Plugin settings and admin page.
  *
- * @package MenuForLoyverse
+ * @package FullBLMenuSyncLoyverse
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,10 +10,10 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Settings storage and admin UI.
  */
-class MFL_Settings {
+class FBMSL_Settings {
 
-	public const OPTION_KEY = 'mfl_settings';
-	public const STATUS_KEY = 'mfl_status';
+	public const OPTION_KEY = 'fbmsl_settings';
+	public const STATUS_KEY = 'fbmsl_status';
 
 	/**
 	 * Hook admin.
@@ -21,9 +21,9 @@ class MFL_Settings {
 	public static function init(): void {
 		add_action( 'admin_menu', array( __CLASS__, 'register_menu' ) );
 		add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
-		add_action( 'admin_post_mfl_sync_now', array( __CLASS__, 'handle_sync_now' ) );
-		add_action( 'admin_post_mfl_test_connection', array( __CLASS__, 'handle_test_connection' ) );
-		add_action( 'admin_post_mfl_register_webhook', array( __CLASS__, 'handle_register_webhook' ) );
+		add_action( 'admin_post_fbmsl_sync_now', array( __CLASS__, 'handle_sync_now' ) );
+		add_action( 'admin_post_fbmsl_test_connection', array( __CLASS__, 'handle_test_connection' ) );
+		add_action( 'admin_post_fbmsl_register_webhook', array( __CLASS__, 'handle_register_webhook' ) );
 		add_action( 'update_option_' . self::OPTION_KEY, array( __CLASS__, 'maybe_flush_rewrites' ), 10, 2 );
 	}
 
@@ -48,8 +48,42 @@ class MFL_Settings {
 			'show_variants'            => 1,
 			'accent_color'             => '#1a1a1a',
 			'gap'                      => '1.5rem',
-			'custom_css'               => '',
 		);
+	}
+
+	/**
+	 * Sanitize accent color (hex only) with safe fallback.
+	 *
+	 * @param mixed $color Raw color.
+	 * @return string
+	 */
+	public static function sanitize_accent_color( $color ): string {
+		$sanitized = is_string( $color ) ? sanitize_hex_color( $color ) : null;
+		return $sanitized ? $sanitized : '#1a1a1a';
+	}
+
+	/**
+	 * Sanitize gap as number + whitelisted unit.
+	 *
+	 * @param mixed $gap Raw gap.
+	 * @return string
+	 */
+	public static function sanitize_gap( $gap ): string {
+		$gap = is_string( $gap ) || is_numeric( $gap ) ? trim( (string) $gap ) : '';
+		if ( preg_match( '/^(\d+(?:\.\d+)?)(px|rem|em|%)$/', $gap, $matches ) ) {
+			return $matches[1] . $matches[2];
+		}
+		return '1.5rem';
+	}
+
+	/**
+	 * Sanitize columns as int clamped to 1–6.
+	 *
+	 * @param mixed $columns Raw columns.
+	 * @return int
+	 */
+	public static function sanitize_columns( $columns ): int {
+		return max( 1, min( 6, (int) $columns ) );
 	}
 
 	/**
@@ -63,14 +97,19 @@ class MFL_Settings {
 			$stored = array();
 		}
 		$settings = array_merge( self::defaults(), $stored );
+		unset( $settings['custom_css'] );
 
-		$token = get_option( 'mfl_api_token', '' );
+		$token = get_option( 'fbmsl_api_token', '' );
 		if ( is_string( $token ) && '' !== $token ) {
 			$settings['api_token'] = $token;
 		} elseif ( ! empty( $stored['api_token'] ) && is_string( $stored['api_token'] ) ) {
 			$settings['api_token'] = $stored['api_token'];
-			update_option( 'mfl_api_token', $settings['api_token'], false );
+			update_option( 'fbmsl_api_token', $settings['api_token'], false );
 		}
+
+		$settings['accent_color'] = self::sanitize_accent_color( $settings['accent_color'] ?? '' );
+		$settings['gap']          = self::sanitize_gap( $settings['gap'] ?? '' );
+		$settings['columns']      = self::sanitize_columns( $settings['columns'] ?? 2 );
 
 		return $settings;
 	}
@@ -91,7 +130,7 @@ class MFL_Settings {
 	 */
 	private static function persist_settings( array $sanitized ): void {
 		$token = isset( $sanitized['api_token'] ) ? (string) $sanitized['api_token'] : '';
-		update_option( 'mfl_api_token', $token, false );
+		update_option( 'fbmsl_api_token', $token, false );
 
 		$stored              = $sanitized;
 		$stored['api_token'] = '';
@@ -135,10 +174,10 @@ class MFL_Settings {
 	 */
 	public static function register_menu(): void {
 		add_options_page(
-			__( 'Menu for Loyverse', 'menu-for-loyverse' ),
-			__( 'Menu for Loyverse', 'menu-for-loyverse' ),
+			__( 'FullBL Menu Sync for Loyverse', 'fullbl-menu-sync-for-loyverse' ),
+			__( 'FullBL Menu Sync for Loyverse', 'fullbl-menu-sync-for-loyverse' ),
 			'manage_options',
-			'menu-for-loyverse',
+			'fullbl-menu-sync-for-loyverse',
 			array( __CLASS__, 'render_page' )
 		);
 	}
@@ -148,7 +187,7 @@ class MFL_Settings {
 	 */
 	public static function register_settings(): void {
 		register_setting(
-			'mfl_settings_group',
+			'fbmsl_settings_group',
 			self::OPTION_KEY,
 			array(
 				'type'              => 'array',
@@ -190,18 +229,19 @@ class MFL_Settings {
 		$out['layout']                   = isset( $input['layout'] ) && in_array( $input['layout'], array( 'grid', 'list' ), true )
 			? $input['layout']
 			: 'grid';
-		$columns                         = isset( $input['columns'] ) ? (int) $input['columns'] : 2;
-		$out['columns']                  = max( 1, min( 3, $columns ) );
+		$out['columns']                  = isset( $input['columns'] )
+			? self::sanitize_columns( $input['columns'] )
+			: self::sanitize_columns( $defaults['columns'] );
 		$out['show_images']              = empty( $input['show_images'] ) ? 0 : 1;
 		$out['show_descriptions']        = empty( $input['show_descriptions'] ) ? 0 : 1;
 		$out['show_prices']              = empty( $input['show_prices'] ) ? 0 : 1;
 		$out['show_variants']            = empty( $input['show_variants'] ) ? 0 : 1;
-		$out['accent_color']             = isset( $input['accent_color'] ) ? sanitize_hex_color( (string) $input['accent_color'] ) : $defaults['accent_color'];
-		if ( ! $out['accent_color'] ) {
-			$out['accent_color'] = $defaults['accent_color'];
-		}
-		$out['gap']        = isset( $input['gap'] ) ? sanitize_text_field( (string) $input['gap'] ) : $defaults['gap'];
-		$out['custom_css'] = isset( $input['custom_css'] ) ? wp_strip_all_tags( (string) $input['custom_css'] ) : '';
+		$out['accent_color']             = isset( $input['accent_color'] )
+			? self::sanitize_accent_color( $input['accent_color'] )
+			: $defaults['accent_color'];
+		$out['gap']                      = isset( $input['gap'] )
+			? self::sanitize_gap( $input['gap'] )
+			: $defaults['gap'];
 
 		if ( empty( $out['permalink_base'] ) ) {
 			$out['permalink_base'] = 'menu';
@@ -228,21 +268,21 @@ class MFL_Settings {
 	 * Flush rewrites when permalink-related settings change.
 	 *
 	 * @param mixed $old Old value.
-	 * @param mixed $new New value.
+	 * @param mixed $new_value New value.
 	 */
-	public static function maybe_flush_rewrites( $old, $new ): void {
-		$old  = is_array( $old ) ? $old : array();
-		$new  = is_array( $new ) ? $new : array();
-		$keys = array( 'permalink_base', 'enable_singles', 'enable_category_archives' );
+	public static function maybe_flush_rewrites( $old, $new_value ): void {
+		$old       = is_array( $old ) ? $old : array();
+		$new_value = is_array( $new_value ) ? $new_value : array();
+		$keys      = array( 'permalink_base', 'enable_singles', 'enable_category_archives' );
 		foreach ( $keys as $key ) {
-			if ( ( $old[ $key ] ?? null ) !== ( $new[ $key ] ?? null ) ) {
+			if ( ( $old[ $key ] ?? null ) !== ( $new_value[ $key ] ?? null ) ) {
 				flush_rewrite_rules();
-				MFL_Cron::reschedule();
+				FBMSL_Cron::reschedule();
 				return;
 			}
 		}
-		if ( ( $old['cron_interval'] ?? '' ) !== ( $new['cron_interval'] ?? '' ) ) {
-			MFL_Cron::reschedule();
+		if ( ( $old['cron_interval'] ?? '' ) !== ( $new_value['cron_interval'] ?? '' ) ) {
+			FBMSL_Cron::reschedule();
 		}
 	}
 
@@ -251,16 +291,16 @@ class MFL_Settings {
 	 */
 	public static function handle_sync_now(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Forbidden.', 'menu-for-loyverse' ) );
+			wp_die( esc_html__( 'Forbidden.', 'fullbl-menu-sync-for-loyverse' ) );
 		}
-		check_admin_referer( 'mfl_sync_now' );
+		check_admin_referer( 'fbmsl_sync_now' );
 
-		$result = MFL_Sync::run();
+		$result = FBMSL_Sync::run();
 		wp_safe_redirect(
 			add_query_arg(
 				array(
-					'page'       => 'menu-for-loyverse',
-					'mfl_notice' => is_wp_error( $result ) ? 'sync_error' : 'sync_ok',
+					'page'         => 'fullbl-menu-sync-for-loyverse',
+					'fbmsl_notice' => is_wp_error( $result ) ? 'sync_error' : 'sync_ok',
 				),
 				admin_url( 'options-general.php' )
 			)
@@ -273,12 +313,12 @@ class MFL_Settings {
 	 */
 	public static function handle_test_connection(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Forbidden.', 'menu-for-loyverse' ) );
+			wp_die( esc_html__( 'Forbidden.', 'fullbl-menu-sync-for-loyverse' ) );
 		}
-		check_admin_referer( 'mfl_test_connection' );
+		check_admin_referer( 'fbmsl_test_connection' );
 
 		$ok     = false;
-		$client = MFL_API_Client::from_settings();
+		$client = FBMSL_API_Client::from_settings();
 		if ( is_wp_error( $client ) ) {
 			self::update_status(
 				array(
@@ -305,7 +345,7 @@ class MFL_Settings {
 						'last_error'   => '',
 						'last_message' => sprintf(
 							/* translators: %d: number of stores */
-							__( 'Connection successful. %d store(s) found.', 'menu-for-loyverse' ),
+							__( 'Connection successful. %d store(s) found.', 'fullbl-menu-sync-for-loyverse' ),
 							count( $stores )
 						),
 					)
@@ -317,8 +357,8 @@ class MFL_Settings {
 		wp_safe_redirect(
 			add_query_arg(
 				array(
-					'page'       => 'menu-for-loyverse',
-					'mfl_notice' => $ok ? 'test_ok' : 'test_error',
+					'page'         => 'fullbl-menu-sync-for-loyverse',
+					'fbmsl_notice' => $ok ? 'test_ok' : 'test_error',
 				),
 				admin_url( 'options-general.php' )
 			)
@@ -331,16 +371,16 @@ class MFL_Settings {
 	 */
 	public static function handle_register_webhook(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Forbidden.', 'menu-for-loyverse' ) );
+			wp_die( esc_html__( 'Forbidden.', 'fullbl-menu-sync-for-loyverse' ) );
 		}
-		check_admin_referer( 'mfl_register_webhook' );
+		check_admin_referer( 'fbmsl_register_webhook' );
 
-		$result = MFL_Webhook::register();
+		$result = FBMSL_Webhook::register();
 		wp_safe_redirect(
 			add_query_arg(
 				array(
-					'page'       => 'menu-for-loyverse',
-					'mfl_notice' => is_wp_error( $result ) ? 'webhook_error' : 'webhook_ok',
+					'page'         => 'fullbl-menu-sync-for-loyverse',
+					'fbmsl_notice' => is_wp_error( $result ) ? 'webhook_error' : 'webhook_ok',
 				),
 				admin_url( 'options-general.php' )
 			)
@@ -359,7 +399,7 @@ class MFL_Settings {
 		$settings = self::get_settings();
 		$status   = self::get_status();
 		$stores   = array();
-		$client   = MFL_API_Client::from_settings();
+		$client   = FBMSL_API_Client::from_settings();
 		if ( ! is_wp_error( $client ) ) {
 			$fetched = $client->get_stores();
 			if ( ! is_wp_error( $fetched ) ) {
@@ -368,8 +408,8 @@ class MFL_Settings {
 		}
 
 		$token_display = $settings['api_token'] ? '********' : '';
-		$webhook_url   = MFL_Webhook::get_endpoint_url();
+		$webhook_url   = FBMSL_Webhook::get_endpoint_url();
 
-		include MFL_PLUGIN_DIR . 'includes/views/settings-page.php';
+		include FBMSL_PLUGIN_DIR . 'includes/views/settings-page.php';
 	}
 }

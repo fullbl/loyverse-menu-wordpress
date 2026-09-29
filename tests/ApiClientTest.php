@@ -2,13 +2,13 @@
 /**
  * API client unit tests.
  *
- * @package MenuForLoyverse
+ * @package FullBLMenuSyncLoyverse
  */
 
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests MFL_API_Client.
+ * Tests FBMSL_API_Client.
  */
 class ApiClientTest extends TestCase {
 
@@ -29,7 +29,7 @@ class ApiClientTest extends TestCase {
 			);
 		};
 
-		$client = new MFL_API_Client( 'token', $handler );
+		$client = new FBMSL_API_Client( 'token', $handler );
 		$result = $client->get_stores();
 
 		$this->assertIsArray( $result );
@@ -50,7 +50,7 @@ class ApiClientTest extends TestCase {
 			);
 		};
 
-		$client = new MFL_API_Client( 'bad', $handler );
+		$client = new FBMSL_API_Client( 'bad', $handler );
 		$result = $client->get( '/stores' );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
@@ -86,7 +86,7 @@ class ApiClientTest extends TestCase {
 			);
 		};
 
-		$client = new MFL_API_Client( 'token', $handler );
+		$client = new FBMSL_API_Client( 'token', $handler );
 		$items  = $client->get_all_items();
 
 		$this->assertCount( 2, $items );

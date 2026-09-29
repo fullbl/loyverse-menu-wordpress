@@ -2,7 +2,7 @@
 /**
  * Frontend assets.
  *
- * @package MenuForLoyverse
+ * @package FullBLMenuSyncLoyverse
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Enqueue menu CSS with settings as CSS variables.
  */
-class MFL_Assets {
+class FBMSL_Assets {
 
 	/**
 	 * Hooks.
@@ -28,24 +28,26 @@ class MFL_Assets {
 			return;
 		}
 
-		$settings = MFL_Settings::get_settings();
+		$settings = FBMSL_Settings::get_settings();
 		wp_enqueue_style(
-			'menu-for-loyverse',
-			MFL_PLUGIN_URL . 'assets/css/menu.css',
+			'fbmsl-menu',
+			FBMSL_PLUGIN_URL . 'assets/css/menu.css',
 			array(),
-			MFL_VERSION
+			FBMSL_VERSION
 		);
 
+		$accent  = FBMSL_Settings::sanitize_accent_color( $settings['accent_color'] ?? '' );
+		$gap     = FBMSL_Settings::sanitize_gap( $settings['gap'] ?? '' );
+		$columns = FBMSL_Settings::sanitize_columns( $settings['columns'] ?? 2 );
+
+		// Values are validated above; sprintf only interpolates safe hex / unit / int.
 		$custom = sprintf(
-			':root{--lm-accent:%1$s;--lm-gap:%2$s;--lm-columns:%3$d;}',
-			esc_attr( $settings['accent_color'] ),
-			esc_attr( $settings['gap'] ),
-			(int) $settings['columns']
+			':root{--fbmsl-accent:%1$s;--fbmsl-gap:%2$s;--fbmsl-columns:%3$d;}',
+			$accent,
+			$gap,
+			$columns
 		);
-		if ( ! empty( $settings['custom_css'] ) ) {
-			$custom .= "\n" . $settings['custom_css'];
-		}
-		wp_add_inline_style( 'menu-for-loyverse', $custom );
+		wp_add_inline_style( 'fbmsl-menu', $custom );
 	}
 
 	/**
@@ -54,21 +56,21 @@ class MFL_Assets {
 	 * @param string $hook Hook suffix.
 	 */
 	public static function admin_enqueue( string $hook ): void {
-		if ( 'settings_page_menu-for-loyverse' !== $hook ) {
+		if ( 'settings_page_fullbl-menu-sync-for-loyverse' !== $hook ) {
 			return;
 		}
 		wp_enqueue_style( 'wp-color-picker' );
 		wp_enqueue_style(
-			'menu-for-loyverse-admin',
-			MFL_PLUGIN_URL . 'assets/css/admin.css',
+			'fbmsl-admin',
+			FBMSL_PLUGIN_URL . 'assets/css/admin.css',
 			array( 'wp-color-picker' ),
-			MFL_VERSION
+			FBMSL_VERSION
 		);
 		wp_enqueue_script(
-			'menu-for-loyverse-admin',
-			MFL_PLUGIN_URL . 'assets/js/admin.js',
+			'fbmsl-admin',
+			FBMSL_PLUGIN_URL . 'assets/js/admin.js',
 			array( 'wp-color-picker', 'jquery' ),
-			MFL_VERSION,
+			FBMSL_VERSION,
 			true
 		);
 	}
@@ -79,13 +81,13 @@ class MFL_Assets {
 	 * @return bool
 	 */
 	private static function should_load(): bool {
-		if ( is_singular( MFL_CPT::POST_TYPE ) || is_post_type_archive( MFL_CPT::POST_TYPE ) || is_tax( MFL_CPT::TAXONOMY ) ) {
+		if ( is_singular( FBMSL_CPT::POST_TYPE ) || is_post_type_archive( FBMSL_CPT::POST_TYPE ) || is_tax( FBMSL_CPT::TAXONOMY ) ) {
 			return true;
 		}
 		global $post;
-		if ( $post instanceof WP_Post && ( has_shortcode( $post->post_content, 'loyverse_menu' ) || has_shortcode( $post->post_content, 'menu_for_loyverse' ) ) ) {
+		if ( $post instanceof WP_Post && has_shortcode( $post->post_content, 'fbmsl_menu' ) ) {
 			return true;
 		}
-		return (bool) apply_filters( 'mfl_enqueue_assets', false );
+		return (bool) apply_filters( 'fbmsl_enqueue_assets', false );
 	}
 }

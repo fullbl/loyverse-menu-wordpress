@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<ruleset name="Menu for Loyverse">
-	<description>WordPress Coding Standards for Menu for Loyverse.</description>
+<ruleset name="FullBL Menu Sync for Loyverse">
+	<description>WordPress Coding Standards for FullBL Menu Sync for Loyverse.</description>
 
 	<file>.</file>
 

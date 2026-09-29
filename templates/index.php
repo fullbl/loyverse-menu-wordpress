@@ -2,5 +2,5 @@
 /**
  * Silence is golden.
  *
- * @package MenuForLoyverse
+ * @package FullBLMenuSyncLoyverse
  */

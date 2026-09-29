@@ -2,7 +2,7 @@
 /**
  * PHPUnit bootstrap (Brain Monkey unit tests).
  *
- * @package MenuForLoyverse
+ * @package FullBLMenuSyncLoyverse
  */
 
 require_once dirname( __DIR__ ) . '/vendor/autoload.php';
@@ -19,20 +19,20 @@ if ( ! defined( 'HOUR_IN_SECONDS' ) ) {
 if ( ! defined( 'MINUTE_IN_SECONDS' ) ) {
 	define( 'MINUTE_IN_SECONDS', 60 );
 }
-if ( ! defined( 'MFL_VERSION' ) ) {
-	define( 'MFL_VERSION', '0.1.0' );
+if ( ! defined( 'FBMSL_VERSION' ) ) {
+	define( 'FBMSL_VERSION', '0.1.0' );
 }
-if ( ! defined( 'MFL_PLUGIN_FILE' ) ) {
-	define( 'MFL_PLUGIN_FILE', dirname( __DIR__ ) . '/menu-for-loyverse.php' );
+if ( ! defined( 'FBMSL_PLUGIN_FILE' ) ) {
+	define( 'FBMSL_PLUGIN_FILE', dirname( __DIR__ ) . '/fullbl-menu-sync-for-loyverse.php' );
 }
-if ( ! defined( 'MFL_PLUGIN_DIR' ) ) {
-	define( 'MFL_PLUGIN_DIR', dirname( __DIR__ ) . '/' );
+if ( ! defined( 'FBMSL_PLUGIN_DIR' ) ) {
+	define( 'FBMSL_PLUGIN_DIR', dirname( __DIR__ ) . '/' );
 }
-if ( ! defined( 'MFL_PLUGIN_URL' ) ) {
-	define( 'MFL_PLUGIN_URL', 'http://example.test/wp-content/plugins/menu-for-loyverse/' );
+if ( ! defined( 'FBMSL_PLUGIN_URL' ) ) {
+	define( 'FBMSL_PLUGIN_URL', 'http://example.test/wp-content/plugins/fullbl-menu-sync-for-loyverse/' );
 }
-if ( ! defined( 'MFL_PLUGIN_BASENAME' ) ) {
-	define( 'MFL_PLUGIN_BASENAME', 'menu-for-loyverse/menu-for-loyverse.php' );
+if ( ! defined( 'FBMSL_PLUGIN_BASENAME' ) ) {
+	define( 'FBMSL_PLUGIN_BASENAME', 'fullbl-menu-sync-for-loyverse/fullbl-menu-sync-for-loyverse.php' );
 }
 
 /**

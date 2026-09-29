@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-SLUG="menu-for-loyverse"
+SLUG="fullbl-menu-sync-for-loyverse"
 DIST_DIR="${ROOT}/dist"
 STAGE="${DIST_DIR}/${SLUG}"
 ZIP="${DIST_DIR}/${SLUG}.zip"

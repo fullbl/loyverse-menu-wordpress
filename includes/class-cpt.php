@@ -2,18 +2,18 @@
 /**
  * Custom post type and taxonomy.
  *
- * @package MenuForLoyverse
+ * @package FullBLMenuSyncLoyverse
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Registers mfl_item CPT and mfl_category taxonomy.
+ * Registers fbmsl_item CPT and fbmsl_category taxonomy.
  */
-class MFL_CPT {
+class FBMSL_CPT {
 
-	public const POST_TYPE = 'mfl_item';
-	public const TAXONOMY  = 'mfl_category';
+	public const POST_TYPE = 'fbmsl_item';
+	public const TAXONOMY  = 'fbmsl_category';
 
 	/**
 	 * Hook registration.
@@ -26,7 +26,7 @@ class MFL_CPT {
 	 * Register CPT and taxonomy.
 	 */
 	public static function register(): void {
-		$settings      = MFL_Settings::get_settings();
+		$settings      = FBMSL_Settings::get_settings();
 		$slug          = ! empty( $settings['permalink_base'] ) ? sanitize_title( $settings['permalink_base'] ) : 'menu';
 		$enable_single = ! empty( $settings['enable_singles'] );
 		$enable_cats   = ! empty( $settings['enable_category_archives'] );
@@ -35,13 +35,13 @@ class MFL_CPT {
 			self::POST_TYPE,
 			array(
 				'labels'             => array(
-					'name'          => __( 'Menu Items', 'menu-for-loyverse' ),
-					'singular_name' => __( 'Menu Item', 'menu-for-loyverse' ),
-					'add_new_item'  => __( 'Add New Menu Item', 'menu-for-loyverse' ),
-					'edit_item'     => __( 'Edit Menu Item', 'menu-for-loyverse' ),
-					'view_item'     => __( 'View Menu Item', 'menu-for-loyverse' ),
-					'search_items'  => __( 'Search Menu Items', 'menu-for-loyverse' ),
-					'not_found'     => __( 'No menu items found.', 'menu-for-loyverse' ),
+					'name'          => __( 'Menu Items', 'fullbl-menu-sync-for-loyverse' ),
+					'singular_name' => __( 'Menu Item', 'fullbl-menu-sync-for-loyverse' ),
+					'add_new_item'  => __( 'Add New Menu Item', 'fullbl-menu-sync-for-loyverse' ),
+					'edit_item'     => __( 'Edit Menu Item', 'fullbl-menu-sync-for-loyverse' ),
+					'view_item'     => __( 'View Menu Item', 'fullbl-menu-sync-for-loyverse' ),
+					'search_items'  => __( 'Search Menu Items', 'fullbl-menu-sync-for-loyverse' ),
+					'not_found'     => __( 'No menu items found.', 'fullbl-menu-sync-for-loyverse' ),
 				),
 				'public'             => true,
 				'has_archive'        => $slug,
@@ -64,14 +64,14 @@ class MFL_CPT {
 			self::POST_TYPE,
 			array(
 				'labels'             => array(
-					'name'          => __( 'Menu Categories', 'menu-for-loyverse' ),
-					'singular_name' => __( 'Menu Category', 'menu-for-loyverse' ),
-					'search_items'  => __( 'Search Menu Categories', 'menu-for-loyverse' ),
-					'all_items'     => __( 'All Menu Categories', 'menu-for-loyverse' ),
-					'edit_item'     => __( 'Edit Menu Category', 'menu-for-loyverse' ),
-					'update_item'   => __( 'Update Menu Category', 'menu-for-loyverse' ),
-					'add_new_item'  => __( 'Add New Menu Category', 'menu-for-loyverse' ),
-					'new_item_name' => __( 'New Menu Category Name', 'menu-for-loyverse' ),
+					'name'          => __( 'Menu Categories', 'fullbl-menu-sync-for-loyverse' ),
+					'singular_name' => __( 'Menu Category', 'fullbl-menu-sync-for-loyverse' ),
+					'search_items'  => __( 'Search Menu Categories', 'fullbl-menu-sync-for-loyverse' ),
+					'all_items'     => __( 'All Menu Categories', 'fullbl-menu-sync-for-loyverse' ),
+					'edit_item'     => __( 'Edit Menu Category', 'fullbl-menu-sync-for-loyverse' ),
+					'update_item'   => __( 'Update Menu Category', 'fullbl-menu-sync-for-loyverse' ),
+					'add_new_item'  => __( 'Add New Menu Category', 'fullbl-menu-sync-for-loyverse' ),
+					'new_item_name' => __( 'New Menu Category Name', 'fullbl-menu-sync-for-loyverse' ),
 				),
 				'public'             => $enable_cats,
 				'publicly_queryable' => $enable_cats,

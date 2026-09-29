@@ -1,8 +1,8 @@
 {
-  "name": "menu-for-loyverse",
+  "name": "fullbl-menu-sync-for-loyverse",
   "version": "0.1.0",
   "private": true,
-  "description": "Local WordPress environment for Menu for Loyverse development.",
+  "description": "Local WordPress environment for FullBL Menu Sync for Loyverse development.",
   "scripts": {
     "env:start": "wp-env start",
     "env:stop": "wp-env stop",

@@ -2,7 +2,7 @@
 /**
  * Idempotent Loyverse → WordPress sync.
  *
- * @package MenuForLoyverse
+ * @package FullBLMenuSyncLoyverse
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,19 +10,19 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Syncs categories and items.
  */
-class MFL_Sync {
+class FBMSL_Sync {
 
 	/**
 	 * Run a full sync.
 	 *
-	 * @param MFL_API_Client|null $client Optional client (tests).
+	 * @param FBMSL_API_Client|null $client Optional client (tests).
 	 * @return array|WP_Error Summary or error.
 	 */
-	public static function run( ?MFL_API_Client $client = null ) {
+	public static function run( ?FBMSL_API_Client $client = null ) {
 		if ( null === $client ) {
-			$client = MFL_API_Client::from_settings();
+			$client = FBMSL_API_Client::from_settings();
 			if ( is_wp_error( $client ) ) {
-				MFL_Settings::update_status(
+				FBMSL_Settings::update_status(
 					array(
 						'connection' => 'error',
 						'last_error' => $client->get_error_message(),
@@ -32,12 +32,12 @@ class MFL_Sync {
 			}
 		}
 
-		$settings = MFL_Settings::get_settings();
+		$settings = FBMSL_Settings::get_settings();
 		$store_id = (string) $settings['store_id'];
 
 		$categories = $client->get_all_categories();
 		if ( is_wp_error( $categories ) ) {
-			MFL_Settings::update_status(
+			FBMSL_Settings::update_status(
 				array(
 					'connection' => 'error',
 					'last_error' => $categories->get_error_message(),
@@ -48,7 +48,7 @@ class MFL_Sync {
 
 		$items = $client->get_all_items();
 		if ( is_wp_error( $items ) ) {
-			MFL_Settings::update_status(
+			FBMSL_Settings::update_status(
 				array(
 					'connection' => 'error',
 					'last_error' => $items->get_error_message(),
@@ -101,14 +101,14 @@ class MFL_Sync {
 			'images'     => $images_synced,
 		);
 
-		MFL_Settings::update_status(
+		FBMSL_Settings::update_status(
 			array(
 				'connection'   => 'ok',
 				'last_sync'    => gmdate( 'c' ),
 				'last_error'   => '',
 				'last_message' => sprintf(
 					/* translators: 1: category count, 2: item count */
-					__( 'Synced %1$d categories and %2$d items.', 'menu-for-loyverse' ),
+					__( 'Synced %1$d categories and %2$d items.', 'fullbl-menu-sync-for-loyverse' ),
 					$summary['categories'],
 					$summary['items']
 				),
@@ -140,7 +140,7 @@ class MFL_Sync {
 			if ( $term_id ) {
 				wp_update_term(
 					$term_id,
-					MFL_CPT::TAXONOMY,
+					FBMSL_CPT::TAXONOMY,
 					array(
 						'name' => $name,
 					)
@@ -148,7 +148,7 @@ class MFL_Sync {
 			} else {
 				$created = wp_insert_term(
 					$name,
-					MFL_CPT::TAXONOMY,
+					FBMSL_CPT::TAXONOMY,
 					array(
 						'slug' => $slug,
 					)
@@ -162,7 +162,7 @@ class MFL_Sync {
 				} else {
 					$term_id = (int) $created['term_id'];
 				}
-				update_term_meta( $term_id, '_mfl_category_id', $loyverse_id );
+				update_term_meta( $term_id, '_fbmsl_category_id', $loyverse_id );
 			}
 
 			$map[ $loyverse_id ] = $term_id;
@@ -191,7 +191,7 @@ class MFL_Sync {
 		 * @param int   $post_id Existing post ID or 0.
 		 * @param array $item    Loyverse item payload.
 		 */
-		if ( apply_filters( 'mfl_sync_skip_post', false, $post_id ? $post_id : 0, $item ) ) {
+		if ( apply_filters( 'fbmsl_sync_skip_post', false, $post_id ? $post_id : 0, $item ) ) {
 			return array(
 				'post_id'      => $post_id,
 				'image_synced' => false,
@@ -222,13 +222,13 @@ class MFL_Sync {
 		}
 
 		$postarr = array(
-			'post_type'   => MFL_CPT::POST_TYPE,
+			'post_type'   => FBMSL_CPT::POST_TYPE,
 			'post_status' => $available ? 'publish' : 'draft',
 		);
 
-		$lock_title   = $post_id && MFL_Locks::is_locked( $post_id, 'title' );
-		$lock_content = $post_id && MFL_Locks::is_locked( $post_id, 'content' );
-		$lock_image   = $post_id && MFL_Locks::is_locked( $post_id, 'image' );
+		$lock_title   = $post_id && FBMSL_Locks::is_locked( $post_id, 'title' );
+		$lock_content = $post_id && FBMSL_Locks::is_locked( $post_id, 'content' );
+		$lock_image   = $post_id && FBMSL_Locks::is_locked( $post_id, 'image' );
 
 		if ( ! $lock_title ) {
 			$postarr['post_title'] = $title;
@@ -257,15 +257,15 @@ class MFL_Sync {
 
 		$post_id = (int) $result;
 
-		update_post_meta( $post_id, '_mfl_item_id', $item_id );
-		update_post_meta( $post_id, '_mfl_variant_data', wp_json_encode( $variant_data ) );
-		update_post_meta( $post_id, '_mfl_price', $price );
-		update_post_meta( $post_id, '_mfl_available', $available ? 1 : 0 );
-		update_post_meta( $post_id, '_mfl_store_id', $store_id );
-		update_post_meta( $post_id, '_mfl_synced_at', gmdate( 'c' ) );
+		update_post_meta( $post_id, '_fbmsl_item_id', $item_id );
+		update_post_meta( $post_id, '_fbmsl_variant_data', wp_json_encode( $variant_data ) );
+		update_post_meta( $post_id, '_fbmsl_price', $price );
+		update_post_meta( $post_id, '_fbmsl_available', $available ? 1 : 0 );
+		update_post_meta( $post_id, '_fbmsl_store_id', $store_id );
+		update_post_meta( $post_id, '_fbmsl_synced_at', gmdate( 'c' ) );
 
 		if ( ! empty( $item['category_id'] ) && isset( $term_map[ (string) $item['category_id'] ] ) ) {
-			wp_set_object_terms( $post_id, array( (int) $term_map[ (string) $item['category_id'] ] ), MFL_CPT::TAXONOMY, false );
+			wp_set_object_terms( $post_id, array( (int) $term_map[ (string) $item['category_id'] ] ), FBMSL_CPT::TAXONOMY, false );
 		}
 
 		$image_synced = false;
@@ -287,13 +287,13 @@ class MFL_Sync {
 	public static function draft_missing_items( array $seen_item_ids ): void {
 		$query = new WP_Query(
 			array(
-				'post_type'      => MFL_CPT::POST_TYPE,
+				'post_type'      => FBMSL_CPT::POST_TYPE,
 				'post_status'    => array( 'publish', 'draft' ),
 				'posts_per_page' => -1,
 				'fields'         => 'ids',
 				'meta_query'     => array(
 					array(
-						'key'     => '_mfl_item_id',
+						'key'     => '_fbmsl_item_id',
 						'compare' => 'EXISTS',
 					),
 				),
@@ -301,7 +301,7 @@ class MFL_Sync {
 		);
 
 		foreach ( $query->posts as $post_id ) {
-			$loyverse_id = (string) get_post_meta( $post_id, '_mfl_item_id', true );
+			$loyverse_id = (string) get_post_meta( $post_id, '_fbmsl_item_id', true );
 			if ( $loyverse_id && ! in_array( $loyverse_id, $seen_item_ids, true ) ) {
 				wp_update_post(
 					array(
@@ -309,7 +309,7 @@ class MFL_Sync {
 						'post_status' => 'draft',
 					)
 				);
-				update_post_meta( $post_id, '_mfl_available', 0 );
+				update_post_meta( $post_id, '_fbmsl_available', 0 );
 			}
 		}
 	}
@@ -323,11 +323,11 @@ class MFL_Sync {
 	public static function find_post_by_loyverse_id( string $item_id ): int {
 		$query = new WP_Query(
 			array(
-				'post_type'      => MFL_CPT::POST_TYPE,
+				'post_type'      => FBMSL_CPT::POST_TYPE,
 				'post_status'    => 'any',
 				'posts_per_page' => 1,
 				'fields'         => 'ids',
-				'meta_key'       => '_mfl_item_id',
+				'meta_key'       => '_fbmsl_item_id',
 				'meta_value'     => $item_id,
 			)
 		);
@@ -343,9 +343,9 @@ class MFL_Sync {
 	public static function find_term_by_loyverse_id( string $category_id ): int {
 		$terms = get_terms(
 			array(
-				'taxonomy'   => MFL_CPT::TAXONOMY,
+				'taxonomy'   => FBMSL_CPT::TAXONOMY,
 				'hide_empty' => false,
-				'meta_key'   => '_mfl_category_id',
+				'meta_key'   => '_fbmsl_category_id',
 				'meta_value' => $category_id,
 				'number'     => 1,
 			)
@@ -363,7 +363,7 @@ class MFL_Sync {
 	 * @return bool
 	 */
 	private static function slug_conflicts_with_term( string $slug ): bool {
-		$term = get_term_by( 'slug', $slug, MFL_CPT::TAXONOMY );
+		$term = get_term_by( 'slug', $slug, FBMSL_CPT::TAXONOMY );
 		return (bool) $term;
 	}
 
@@ -452,7 +452,7 @@ class MFL_Sync {
 			$image_url = (string) $item['image']['url'];
 		}
 
-		$previous_url = (string) get_post_meta( $post_id, '_mfl_image_url', true );
+		$previous_url = (string) get_post_meta( $post_id, '_fbmsl_image_url', true );
 		if ( ! $image_url ) {
 			return false;
 		}
@@ -470,9 +470,9 @@ class MFL_Sync {
 		}
 
 		set_post_thumbnail( $post_id, (int) $attachment_id );
-		update_post_meta( $post_id, '_mfl_image_url', esc_url_raw( $image_url ) );
+		update_post_meta( $post_id, '_fbmsl_image_url', esc_url_raw( $image_url ) );
 		if ( ! empty( $item['image_id'] ) ) {
-			update_post_meta( $post_id, '_mfl_image_id', sanitize_text_field( (string) $item['image_id'] ) );
+			update_post_meta( $post_id, '_fbmsl_image_id', sanitize_text_field( (string) $item['image_id'] ) );
 		}
 
 		return true;

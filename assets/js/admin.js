@@ -1,5 +1,5 @@
 ( function ( $ ) {
 	$( function () {
-		$( '.lm-color-picker' ).wpColorPicker();
+		$( '.fbmsl-color-picker' ).wpColorPicker();
 	} );
 }( jQuery ) );

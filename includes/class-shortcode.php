@@ -2,22 +2,21 @@
 /**
  * Shortcode renderer.
  *
- * @package MenuForLoyverse
+ * @package FullBLMenuSyncLoyverse
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * [loyverse_menu] shortcode.
+ * [fbmsl_menu] shortcode.
  */
-class MFL_Shortcode {
+class FBMSL_Shortcode {
 
 	/**
 	 * Register shortcode.
 	 */
 	public static function init(): void {
-		add_shortcode( 'loyverse_menu', array( __CLASS__, 'render' ) );
-		add_shortcode( 'menu_for_loyverse', array( __CLASS__, 'render' ) );
+		add_shortcode( 'fbmsl_menu', array( __CLASS__, 'render' ) );
 	}
 
 	/**
@@ -27,7 +26,7 @@ class MFL_Shortcode {
 	 * @return string
 	 */
 	public static function render( $atts ): string {
-		$settings = MFL_Settings::get_settings();
+		$settings = FBMSL_Settings::get_settings();
 		$atts     = shortcode_atts(
 			array(
 				'category'          => '',
@@ -39,14 +38,14 @@ class MFL_Shortcode {
 				'show_variants'     => $settings['show_variants'],
 			),
 			$atts,
-			'loyverse_menu'
+			'fbmsl_menu'
 		);
 
 		$layout  = in_array( $atts['layout'], array( 'grid', 'list' ), true ) ? $atts['layout'] : 'grid';
-		$columns = max( 1, min( 3, (int) $atts['columns'] ) );
+		$columns = FBMSL_Settings::sanitize_columns( $atts['columns'] );
 
 		$query_args = array(
-			'post_type'      => MFL_CPT::POST_TYPE,
+			'post_type'      => FBMSL_CPT::POST_TYPE,
 			'post_status'    => 'publish',
 			'posts_per_page' => -1,
 			'orderby'        => 'title',
@@ -56,7 +55,7 @@ class MFL_Shortcode {
 		if ( $atts['category'] ) {
 			$query_args['tax_query'] = array(
 				array(
-					'taxonomy' => MFL_CPT::TAXONOMY,
+					'taxonomy' => FBMSL_CPT::TAXONOMY,
 					'field'    => is_numeric( $atts['category'] ) ? 'term_id' : 'slug',
 					'terms'    => $atts['category'],
 				),
@@ -77,7 +76,7 @@ class MFL_Shortcode {
 		);
 
 		ob_start();
-		MFL_Templates::load( 'menu-list', $context );
+		FBMSL_Templates::load( 'menu-list', $context );
 		return (string) ob_get_clean();
 	}
 }

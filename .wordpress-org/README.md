@@ -17,7 +17,7 @@ Place the following in the SVN `assets/` folder (commit alongside `trunk/`, not 
 ## Workflow
 
 1. Add PNG placeholders or final artwork under this directory in Git for reference (optional).
-2. On first SVN checkout: `svn co https://plugins.svn.wordpress.org/menu-for-loyverse`
+2. On first SVN checkout: `svn co https://plugins.svn.wordpress.org/fullbl-menu-sync-for-loyverse`
 3. Copy icons/banners/screenshots into `assets/` and commit.
 4. Plugin source goes in `trunk/`; tag releases as `tags/<version>/`.
 

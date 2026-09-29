@@ -3,7 +3,7 @@
   "phpVersion": "8.2",
   "plugins": [],
   "mappings": {
-    "wp-content/plugins/menu-for-loyverse": "."
+    "wp-content/plugins/fullbl-menu-sync-for-loyverse": "."
   },
   "config": {
     "WP_DEBUG": true,

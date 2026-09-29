@@ -2,7 +2,7 @@
 /**
  * Settings sanitize tests.
  *
- * @package MenuForLoyverse
+ * @package FullBLMenuSyncLoyverse
  */
 
 use PHPUnit\Framework\TestCase;
@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 require_once dirname( __DIR__ ) . '/includes/class-settings.php';
 
 /**
- * Tests MFL_Settings::sanitize.
+ * Tests FBMSL_Settings::sanitize.
  */
 class SettingsSanitizeTest extends TestCase {
 
@@ -44,15 +44,6 @@ class SettingsSanitizeTest extends TestCase {
 				return preg_match( '/^#([A-Fa-f0-9]{3}){1,2}$/', (string) $color ) ? $color : null;
 			}
 		}
-		if ( ! function_exists( 'wp_strip_all_tags' ) ) {
-			/**
-			 * @param string $str Input.
-			 * @return string
-			 */
-			function wp_strip_all_tags( $str ) {
-				return strip_tags( (string) $str );
-			}
-		}
 		if ( ! function_exists( 'get_option' ) ) {
 			/**
 			 * @param string $key     Option key.
@@ -66,7 +57,7 @@ class SettingsSanitizeTest extends TestCase {
 	}
 
 	public function test_sanitize_clamps_columns_and_keeps_layout(): void {
-		$result = MFL_Settings::sanitize(
+		$result = FBMSL_Settings::sanitize(
 			array(
 				'api_token' => 'abc',
 				'columns'   => 9,
@@ -74,13 +65,14 @@ class SettingsSanitizeTest extends TestCase {
 			)
 		);
 
-		$this->assertSame( 3, $result['columns'] );
+		$this->assertSame( 6, $result['columns'] );
 		$this->assertSame( 'grid', $result['layout'] );
 		$this->assertSame( 'abc', $result['api_token'] );
+		$this->assertArrayNotHasKey( 'custom_css', $result );
 	}
 
 	public function test_sanitize_keeps_token_when_masked(): void {
-		$result = MFL_Settings::sanitize(
+		$result = FBMSL_Settings::sanitize(
 			array(
 				'api_token' => '********',
 				'layout'    => 'list',
@@ -89,5 +81,20 @@ class SettingsSanitizeTest extends TestCase {
 
 		$this->assertSame( '', $result['api_token'] );
 		$this->assertSame( 'list', $result['layout'] );
+	}
+
+	public function test_sanitize_gap_allows_whitelisted_units_only(): void {
+		$this->assertSame( '1.5rem', FBMSL_Settings::sanitize_gap( '1.5rem' ) );
+		$this->assertSame( '12px', FBMSL_Settings::sanitize_gap( '12px' ) );
+		$this->assertSame( '2em', FBMSL_Settings::sanitize_gap( '2em' ) );
+		$this->assertSame( '10%', FBMSL_Settings::sanitize_gap( '10%' ) );
+		$this->assertSame( '1.5rem', FBMSL_Settings::sanitize_gap( '1.5vw; color:red' ) );
+		$this->assertSame( '1.5rem', FBMSL_Settings::sanitize_gap( 'expression(alert(1))' ) );
+	}
+
+	public function test_sanitize_accent_color_falls_back(): void {
+		$this->assertSame( '#ff00aa', FBMSL_Settings::sanitize_accent_color( '#ff00aa' ) );
+		$this->assertSame( '#1a1a1a', FBMSL_Settings::sanitize_accent_color( 'red' ) );
+		$this->assertSame( '#1a1a1a', FBMSL_Settings::sanitize_accent_color( '#xyz' ) );
 	}
 }

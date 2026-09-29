@@ -2,13 +2,13 @@
 /**
  * Sync helper unit tests.
  *
- * @package MenuForLoyverse
+ * @package FullBLMenuSyncLoyverse
  */
 
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests MFL_Sync pricing helpers.
+ * Tests FBMSL_Sync pricing helpers.
  */
 class SyncHelpersTest extends TestCase {
 
@@ -23,7 +23,7 @@ class SyncHelpersTest extends TestCase {
 			),
 		);
 
-		$this->assertSame( 12.5, MFL_Sync::variant_price( $variant, 's1' ) );
+		$this->assertSame( 12.5, FBMSL_Sync::variant_price( $variant, 's1' ) );
 	}
 
 	public function test_variant_price_falls_back_to_default(): void {
@@ -32,10 +32,10 @@ class SyncHelpersTest extends TestCase {
 			'stores'        => array(),
 		);
 
-		$this->assertSame( 9.0, MFL_Sync::variant_price( $variant, 'missing' ) );
+		$this->assertSame( 9.0, FBMSL_Sync::variant_price( $variant, 'missing' ) );
 	}
 
 	public function test_variant_price_without_default_returns_null(): void {
-		$this->assertNull( MFL_Sync::variant_price( array(), 's1' ) );
+		$this->assertNull( FBMSL_Sync::variant_price( array(), 's1' ) );
 	}
 }

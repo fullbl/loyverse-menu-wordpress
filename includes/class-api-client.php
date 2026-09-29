@@ -2,7 +2,7 @@
 /**
  * Loyverse REST API client.
  *
- * @package MenuForLoyverse
+ * @package FullBLMenuSyncLoyverse
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Thin HTTP client for api.loyverse.com.
  */
-class MFL_API_Client {
+class FBMSL_API_Client {
 
 	public const BASE_URL = 'https://api.loyverse.com/v1.0';
 
@@ -45,10 +45,10 @@ class MFL_API_Client {
 	 * @return self|WP_Error
 	 */
 	public static function from_settings() {
-		$settings = MFL_Settings::get_settings();
+		$settings = FBMSL_Settings::get_settings();
 		$token    = isset( $settings['api_token'] ) ? (string) $settings['api_token'] : '';
 		if ( '' === $token ) {
-			return new WP_Error( 'mfl_no_token', __( 'Loyverse API token is not configured.', 'menu-for-loyverse' ) );
+			return new WP_Error( 'fbmsl_no_token', __( 'Loyverse API token is not configured.', 'fullbl-menu-sync-for-loyverse' ) );
 		}
 		return new self( $token );
 	}
@@ -233,14 +233,14 @@ class MFL_API_Client {
 		$data = json_decode( $raw, true );
 
 		if ( $code < 200 || $code >= 300 ) {
-			$message = __( 'Loyverse API request failed.', 'menu-for-loyverse' );
+			$message = __( 'Loyverse API request failed.', 'fullbl-menu-sync-for-loyverse' );
 			if ( is_array( $data ) && ! empty( $data['errors'][0]['details'] ) ) {
 				$message = (string) $data['errors'][0]['details'];
 			} elseif ( is_array( $data ) && ! empty( $data['message'] ) ) {
 				$message = (string) $data['message'];
 			}
 			return new WP_Error(
-				'mfl_api_error',
+				'fbmsl_api_error',
 				$message,
 				array(
 					'status' => $code,
@@ -254,7 +254,7 @@ class MFL_API_Client {
 		}
 
 		if ( ! is_array( $data ) ) {
-			return new WP_Error( 'mfl_api_invalid_json', __( 'Invalid JSON from Loyverse API.', 'menu-for-loyverse' ) );
+			return new WP_Error( 'fbmsl_api_invalid_json', __( 'Invalid JSON from Loyverse API.', 'fullbl-menu-sync-for-loyverse' ) );
 		}
 
 		return $data;

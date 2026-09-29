@@ -1,5 +1,5 @@
 {
-  "name": "fullbl/menu-for-loyverse",
+  "name": "fullbl/fullbl-menu-sync-for-loyverse",
   "description": "WordPress plugin to sync Loyverse POS menus.",
   "type": "wordpress-plugin",
   "license": "GPL-2.0-or-later",
@@ -16,7 +16,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "MenuForLoyverse\\Tests\\": "tests/"
+      "FullBLMenuSyncLoyverse\\Tests\\": "tests/"
     }
   },
   "scripts": {

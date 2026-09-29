@@ -2,7 +2,7 @@
 /**
  * Loyverse webhook REST endpoint.
  *
- * @package MenuForLoyverse
+ * @package FullBLMenuSyncLoyverse
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,9 +10,9 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Near-realtime updates via webhook + secret token.
  */
-class MFL_Webhook {
+class FBMSL_Webhook {
 
-	public const ROUTE_NAMESPACE = 'menu-for-loyverse/v1';
+	public const ROUTE_NAMESPACE = 'fbmsl/v1';
 	public const ROUTE           = '/webhook';
 
 	/**
@@ -28,10 +28,10 @@ class MFL_Webhook {
 	 * @return string
 	 */
 	public static function get_secret(): string {
-		$secret = get_option( 'mfl_webhook_secret', '' );
+		$secret = get_option( 'fbmsl_webhook_secret', '' );
 		if ( ! $secret ) {
 			$secret = wp_generate_password( 32, false, false );
-			update_option( 'mfl_webhook_secret', $secret, false );
+			update_option( 'fbmsl_webhook_secret', $secret, false );
 		}
 		return (string) $secret;
 	}
@@ -73,7 +73,7 @@ class MFL_Webhook {
 	public static function permission_check( WP_REST_Request $request ) {
 		$token = (string) $request->get_param( 'token' );
 		if ( ! $token || ! hash_equals( self::get_secret(), $token ) ) {
-			return new WP_Error( 'mfl_forbidden', __( 'Invalid webhook token.', 'menu-for-loyverse' ), array( 'status' => 403 ) );
+			return new WP_Error( 'fbmsl_forbidden', __( 'Invalid webhook token.', 'fullbl-menu-sync-for-loyverse' ), array( 'status' => 403 ) );
 		}
 		return true;
 	}
@@ -86,7 +86,7 @@ class MFL_Webhook {
 	 */
 	public static function handle( WP_REST_Request $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
 		// Full sync keeps catalog consistent; cheap enough for restaurant catalogs.
-		$result = MFL_Sync::run();
+		$result = FBMSL_Sync::run();
 		if ( is_wp_error( $result ) ) {
 			return new WP_REST_Response(
 				array(
@@ -111,9 +111,9 @@ class MFL_Webhook {
 	 * @return true|WP_Error
 	 */
 	public static function register() {
-		$client = MFL_API_Client::from_settings();
+		$client = FBMSL_API_Client::from_settings();
 		if ( is_wp_error( $client ) ) {
-			MFL_Settings::update_status(
+			FBMSL_Settings::update_status(
 				array(
 					'webhook_status' => 'error',
 					'last_error'     => $client->get_error_message(),
@@ -123,7 +123,7 @@ class MFL_Webhook {
 		}
 
 		$url    = self::get_endpoint_url();
-		$status = MFL_Settings::get_status();
+		$status = FBMSL_Settings::get_status();
 		$body   = array(
 			'url'    => $url,
 			'type'   => 'items.update',
@@ -135,7 +135,7 @@ class MFL_Webhook {
 
 		$result = $client->upsert_webhook( $body );
 		if ( is_wp_error( $result ) ) {
-			MFL_Settings::update_status(
+			FBMSL_Settings::update_status(
 				array(
 					'webhook_status' => 'error',
 					'last_error'     => $result->get_error_message(),
@@ -145,12 +145,12 @@ class MFL_Webhook {
 		}
 
 		$webhook_id = isset( $result['id'] ) ? (string) $result['id'] : ( $status['webhook_id'] ?? '' );
-		MFL_Settings::update_status(
+		FBMSL_Settings::update_status(
 			array(
 				'webhook_status' => 'registered',
 				'webhook_id'     => $webhook_id,
 				'last_error'     => '',
-				'last_message'   => __( 'Webhook registered.', 'menu-for-loyverse' ),
+				'last_message'   => __( 'Webhook registered.', 'fullbl-menu-sync-for-loyverse' ),
 			)
 		);
 
