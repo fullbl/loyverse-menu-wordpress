@@ -1,0 +1,12 @@
+{
+  "core": "WordPress/WordPress#6.7",
+  "phpVersion": "8.2",
+  "plugins": [],
+  "mappings": {
+    "wp-content/plugins/loyverse-menu": "."
+  },
+  "config": {
+    "WP_DEBUG": true,
+    "SCRIPT_DEBUG": true
+  }
+}

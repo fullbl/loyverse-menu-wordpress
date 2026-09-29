@@ -1,0 +1,15 @@
+{
+  "name": "loyverse-menu",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local WordPress environment for Loyverse Menu development.",
+  "scripts": {
+    "env:start": "wp-env start",
+    "env:stop": "wp-env stop",
+    "env:destroy": "wp-env destroy",
+    "env:cli": "wp-env run cli"
+  },
+  "devDependencies": {
+    "@wordpress/env": "^10.14.0"
+  }
+}
