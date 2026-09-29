@@ -1,5 +1,5 @@
 === Menu for Loyverse ===
-Contributors: yourwordpressorgusername
+Contributors: fullbl
 Tags: menu, restaurant, pos, food, sync
 Requires at least: 6.0
 Tested up to: 6.8
