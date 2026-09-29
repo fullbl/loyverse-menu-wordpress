@@ -2,7 +2,7 @@
 /**
  * Frontend assets.
  *
- * @package LoyverseMenu
+ * @package MenuForLoyverse
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Enqueue menu CSS with settings as CSS variables.
  */
-class LM_Assets {
+class MFL_Assets {
 
 	/**
 	 * Hooks.
@@ -28,12 +28,12 @@ class LM_Assets {
 			return;
 		}
 
-		$settings = LM_Settings::get_settings();
+		$settings = MFL_Settings::get_settings();
 		wp_enqueue_style(
-			'loyverse-menu',
-			LM_PLUGIN_URL . 'assets/css/menu.css',
+			'menu-for-loyverse',
+			MFL_PLUGIN_URL . 'assets/css/menu.css',
 			array(),
-			LM_VERSION
+			MFL_VERSION
 		);
 
 		$custom = sprintf(
@@ -45,7 +45,7 @@ class LM_Assets {
 		if ( ! empty( $settings['custom_css'] ) ) {
 			$custom .= "\n" . $settings['custom_css'];
 		}
-		wp_add_inline_style( 'loyverse-menu', $custom );
+		wp_add_inline_style( 'menu-for-loyverse', $custom );
 	}
 
 	/**
@@ -54,21 +54,21 @@ class LM_Assets {
 	 * @param string $hook Hook suffix.
 	 */
 	public static function admin_enqueue( string $hook ): void {
-		if ( 'settings_page_loyverse-menu' !== $hook ) {
+		if ( 'settings_page_menu-for-loyverse' !== $hook ) {
 			return;
 		}
 		wp_enqueue_style( 'wp-color-picker' );
 		wp_enqueue_style(
-			'loyverse-menu-admin',
-			LM_PLUGIN_URL . 'assets/css/admin.css',
+			'menu-for-loyverse-admin',
+			MFL_PLUGIN_URL . 'assets/css/admin.css',
 			array( 'wp-color-picker' ),
-			LM_VERSION
+			MFL_VERSION
 		);
 		wp_enqueue_script(
-			'loyverse-menu-admin',
-			LM_PLUGIN_URL . 'assets/js/admin.js',
+			'menu-for-loyverse-admin',
+			MFL_PLUGIN_URL . 'assets/js/admin.js',
 			array( 'wp-color-picker', 'jquery' ),
-			LM_VERSION,
+			MFL_VERSION,
 			true
 		);
 	}
@@ -79,13 +79,13 @@ class LM_Assets {
 	 * @return bool
 	 */
 	private static function should_load(): bool {
-		if ( is_singular( LM_CPT::POST_TYPE ) || is_post_type_archive( LM_CPT::POST_TYPE ) || is_tax( LM_CPT::TAXONOMY ) ) {
+		if ( is_singular( MFL_CPT::POST_TYPE ) || is_post_type_archive( MFL_CPT::POST_TYPE ) || is_tax( MFL_CPT::TAXONOMY ) ) {
 			return true;
 		}
 		global $post;
-		if ( $post instanceof WP_Post && has_shortcode( $post->post_content, 'loyverse_menu' ) ) {
+		if ( $post instanceof WP_Post && ( has_shortcode( $post->post_content, 'loyverse_menu' ) || has_shortcode( $post->post_content, 'menu_for_loyverse' ) ) ) {
 			return true;
 		}
-		return (bool) apply_filters( 'lm_enqueue_assets', false );
+		return (bool) apply_filters( 'mfl_enqueue_assets', false );
 	}
 }

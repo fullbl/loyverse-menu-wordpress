@@ -2,7 +2,7 @@
 /**
  * WP-Cron reconciliation sync.
  *
- * @package LoyverseMenu
+ * @package MenuForLoyverse
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,22 +10,22 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Schedules automatic sync.
  */
-class LM_Cron {
+class MFL_Cron {
 
-	public const HOOK = 'lm_cron_sync';
+	public const HOOK = 'mfl_cron_sync';
 
 	/**
 	 * Register hooks.
 	 */
 	public static function init(): void {
-		add_action( self::HOOK, array( 'LM_Sync', 'run' ) );
+		add_action( self::HOOK, array( 'MFL_Sync', 'run' ) );
 	}
 
 	/**
 	 * Schedule event from settings.
 	 */
 	public static function schedule(): void {
-		$settings = LM_Settings::get_settings();
+		$settings = MFL_Settings::get_settings();
 		$interval = $settings['cron_interval'] ?? 'hourly';
 		if ( ! in_array( $interval, array( 'hourly', 'twicedaily', 'daily' ), true ) ) {
 			$interval = 'hourly';

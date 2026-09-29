@@ -1,4 +1,6 @@
+/dist/
 /vendor/
+composer.phar
 /node_modules/
 /.wp-env.override.json
 /.phpunit.result.cache

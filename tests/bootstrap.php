@@ -2,7 +2,7 @@
 /**
  * PHPUnit bootstrap (Brain Monkey unit tests).
  *
- * @package LoyverseMenu
+ * @package MenuForLoyverse
  */
 
 require_once dirname( __DIR__ ) . '/vendor/autoload.php';
@@ -19,20 +19,20 @@ if ( ! defined( 'HOUR_IN_SECONDS' ) ) {
 if ( ! defined( 'MINUTE_IN_SECONDS' ) ) {
 	define( 'MINUTE_IN_SECONDS', 60 );
 }
-if ( ! defined( 'LM_VERSION' ) ) {
-	define( 'LM_VERSION', '0.1.0' );
+if ( ! defined( 'MFL_VERSION' ) ) {
+	define( 'MFL_VERSION', '0.1.0' );
 }
-if ( ! defined( 'LM_PLUGIN_FILE' ) ) {
-	define( 'LM_PLUGIN_FILE', dirname( __DIR__ ) . '/loyverse-menu.php' );
+if ( ! defined( 'MFL_PLUGIN_FILE' ) ) {
+	define( 'MFL_PLUGIN_FILE', dirname( __DIR__ ) . '/menu-for-loyverse.php' );
 }
-if ( ! defined( 'LM_PLUGIN_DIR' ) ) {
-	define( 'LM_PLUGIN_DIR', dirname( __DIR__ ) . '/' );
+if ( ! defined( 'MFL_PLUGIN_DIR' ) ) {
+	define( 'MFL_PLUGIN_DIR', dirname( __DIR__ ) . '/' );
 }
-if ( ! defined( 'LM_PLUGIN_URL' ) ) {
-	define( 'LM_PLUGIN_URL', 'http://example.test/wp-content/plugins/loyverse-menu/' );
+if ( ! defined( 'MFL_PLUGIN_URL' ) ) {
+	define( 'MFL_PLUGIN_URL', 'http://example.test/wp-content/plugins/menu-for-loyverse/' );
 }
-if ( ! defined( 'LM_PLUGIN_BASENAME' ) ) {
-	define( 'LM_PLUGIN_BASENAME', 'loyverse-menu/loyverse-menu.php' );
+if ( ! defined( 'MFL_PLUGIN_BASENAME' ) ) {
+	define( 'MFL_PLUGIN_BASENAME', 'menu-for-loyverse/menu-for-loyverse.php' );
 }
 
 /**

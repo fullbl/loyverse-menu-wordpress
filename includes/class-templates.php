@@ -2,7 +2,7 @@
 /**
  * Template loader with theme override support.
  *
- * @package LoyverseMenu
+ * @package MenuForLoyverse
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Locates templates in theme then plugin.
  */
-class LM_Templates {
+class MFL_Templates {
 
 	/**
 	 * Hook template includes for CPT/taxonomy.
@@ -26,16 +26,16 @@ class LM_Templates {
 	 * @return string
 	 */
 	public static function template_include( string $template ): string {
-		if ( is_singular( LM_CPT::POST_TYPE ) ) {
-			$custom = self::locate( 'single-lm_item.php' );
+		if ( is_singular( MFL_CPT::POST_TYPE ) ) {
+			$custom = self::locate( 'single-mfl_item.php' );
 			return $custom ? $custom : $template;
 		}
-		if ( is_post_type_archive( LM_CPT::POST_TYPE ) ) {
-			$custom = self::locate( 'archive-lm_item.php' );
+		if ( is_post_type_archive( MFL_CPT::POST_TYPE ) ) {
+			$custom = self::locate( 'archive-mfl_item.php' );
 			return $custom ? $custom : $template;
 		}
-		if ( is_tax( LM_CPT::TAXONOMY ) ) {
-			$custom = self::locate( 'taxonomy-lm_category.php' );
+		if ( is_tax( MFL_CPT::TAXONOMY ) ) {
+			$custom = self::locate( 'taxonomy-mfl_category.php' );
 			return $custom ? $custom : $template;
 		}
 		return $template;
@@ -44,17 +44,17 @@ class LM_Templates {
 	/**
 	 * Locate a template file.
 	 *
-	 * Theme path: your-theme/loyverse-menu/{name}
+	 * Theme path: your-theme/menu-for-loyverse/{name}
 	 *
 	 * @param string $name Template filename.
 	 * @return string Empty if not found.
 	 */
 	public static function locate( string $name ): string {
-		$theme = locate_template( array( 'loyverse-menu/' . $name ) );
+		$theme = locate_template( array( 'menu-for-loyverse/' . $name ) );
 		if ( $theme ) {
 			return $theme;
 		}
-		$path = LM_PLUGIN_DIR . 'templates/' . $name;
+		$path = MFL_PLUGIN_DIR . 'templates/' . $name;
 		return file_exists( $path ) ? $path : '';
 	}
 
@@ -91,7 +91,7 @@ class LM_Templates {
 		 * @param string $formatted Formatted number.
 		 * @param float  $price     Raw price.
 		 */
-		return (string) apply_filters( 'lm_format_price', $formatted, (float) $price );
+		return (string) apply_filters( 'mfl_format_price', $formatted, (float) $price );
 	}
 
 	/**
@@ -101,7 +101,7 @@ class LM_Templates {
 	 * @return array
 	 */
 	public static function get_variants( int $post_id ): array {
-		$raw = get_post_meta( $post_id, '_lm_variant_data', true );
+		$raw = get_post_meta( $post_id, '_mfl_variant_data', true );
 		if ( ! $raw ) {
 			return array();
 		}

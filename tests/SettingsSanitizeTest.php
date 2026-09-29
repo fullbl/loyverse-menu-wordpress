@@ -2,7 +2,7 @@
 /**
  * Settings sanitize tests.
  *
- * @package LoyverseMenu
+ * @package MenuForLoyverse
  */
 
 use PHPUnit\Framework\TestCase;
@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 require_once dirname( __DIR__ ) . '/includes/class-settings.php';
 
 /**
- * Tests LM_Settings::sanitize.
+ * Tests MFL_Settings::sanitize.
  */
 class SettingsSanitizeTest extends TestCase {
 
@@ -66,7 +66,7 @@ class SettingsSanitizeTest extends TestCase {
 	}
 
 	public function test_sanitize_clamps_columns_and_keeps_layout(): void {
-		$result = LM_Settings::sanitize(
+		$result = MFL_Settings::sanitize(
 			array(
 				'api_token' => 'abc',
 				'columns'   => 9,
@@ -80,7 +80,7 @@ class SettingsSanitizeTest extends TestCase {
 	}
 
 	public function test_sanitize_keeps_token_when_masked(): void {
-		$result = LM_Settings::sanitize(
+		$result = MFL_Settings::sanitize(
 			array(
 				'api_token' => '********',
 				'layout'    => 'list',

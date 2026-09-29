@@ -2,7 +2,7 @@
 /**
  * Plugin settings and admin page.
  *
- * @package LoyverseMenu
+ * @package MenuForLoyverse
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,10 +10,10 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Settings storage and admin UI.
  */
-class LM_Settings {
+class MFL_Settings {
 
-	public const OPTION_KEY = 'lm_settings';
-	public const STATUS_KEY = 'lm_status';
+	public const OPTION_KEY = 'mfl_settings';
+	public const STATUS_KEY = 'mfl_status';
 
 	/**
 	 * Hook admin.
@@ -21,9 +21,9 @@ class LM_Settings {
 	public static function init(): void {
 		add_action( 'admin_menu', array( __CLASS__, 'register_menu' ) );
 		add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
-		add_action( 'admin_post_lm_sync_now', array( __CLASS__, 'handle_sync_now' ) );
-		add_action( 'admin_post_lm_test_connection', array( __CLASS__, 'handle_test_connection' ) );
-		add_action( 'admin_post_lm_register_webhook', array( __CLASS__, 'handle_register_webhook' ) );
+		add_action( 'admin_post_mfl_sync_now', array( __CLASS__, 'handle_sync_now' ) );
+		add_action( 'admin_post_mfl_test_connection', array( __CLASS__, 'handle_test_connection' ) );
+		add_action( 'admin_post_mfl_register_webhook', array( __CLASS__, 'handle_register_webhook' ) );
 		add_action( 'update_option_' . self::OPTION_KEY, array( __CLASS__, 'maybe_flush_rewrites' ), 10, 2 );
 	}
 
@@ -62,7 +62,17 @@ class LM_Settings {
 		if ( ! is_array( $stored ) ) {
 			$stored = array();
 		}
-		return array_merge( self::defaults(), $stored );
+		$settings = array_merge( self::defaults(), $stored );
+
+		$token = get_option( 'mfl_api_token', '' );
+		if ( is_string( $token ) && '' !== $token ) {
+			$settings['api_token'] = $token;
+		} elseif ( ! empty( $stored['api_token'] ) && is_string( $stored['api_token'] ) ) {
+			$settings['api_token'] = $stored['api_token'];
+			update_option( 'mfl_api_token', $settings['api_token'], false );
+		}
+
+		return $settings;
 	}
 
 	/**
@@ -71,7 +81,21 @@ class LM_Settings {
 	 * @param array $settings Settings.
 	 */
 	public static function update_settings( array $settings ): void {
-		update_option( self::OPTION_KEY, self::sanitize( $settings ), false );
+		self::persist_settings( self::sanitize( $settings ) );
+	}
+
+	/**
+	 * Save sanitized settings; API token is stored in a separate non-autoloaded option.
+	 *
+	 * @param array $sanitized Sanitized settings from self::sanitize().
+	 */
+	private static function persist_settings( array $sanitized ): void {
+		$token = isset( $sanitized['api_token'] ) ? (string) $sanitized['api_token'] : '';
+		update_option( 'mfl_api_token', $token, false );
+
+		$stored              = $sanitized;
+		$stored['api_token'] = '';
+		update_option( self::OPTION_KEY, $stored, false );
 	}
 
 	/**
@@ -111,10 +135,10 @@ class LM_Settings {
 	 */
 	public static function register_menu(): void {
 		add_options_page(
-			__( 'Loyverse Menu', 'loyverse-menu' ),
-			__( 'Loyverse Menu', 'loyverse-menu' ),
+			__( 'Menu for Loyverse', 'menu-for-loyverse' ),
+			__( 'Menu for Loyverse', 'menu-for-loyverse' ),
 			'manage_options',
-			'loyverse-menu',
+			'menu-for-loyverse',
 			array( __CLASS__, 'render_page' )
 		);
 	}
@@ -124,12 +148,13 @@ class LM_Settings {
 	 */
 	public static function register_settings(): void {
 		register_setting(
-			'lm_settings_group',
+			'mfl_settings_group',
 			self::OPTION_KEY,
 			array(
 				'type'              => 'array',
-				'sanitize_callback' => array( __CLASS__, 'sanitize' ),
+				'sanitize_callback' => array( __CLASS__, 'sanitize_for_option' ),
 				'default'           => self::defaults(),
+				'show_in_rest'      => false,
 			)
 		);
 	}
@@ -153,7 +178,7 @@ class LM_Settings {
 			$out['api_token'] = sanitize_text_field( $token );
 		}
 
-		$out['store_id'] = array_key_exists( 'store_id', $input )
+		$out['store_id']                 = array_key_exists( 'store_id', $input )
 			? sanitize_text_field( (string) $input['store_id'] )
 			: (string) ( $current['store_id'] ?? '' );
 		$out['permalink_base']           = isset( $input['permalink_base'] ) ? sanitize_title( (string) $input['permalink_base'] ) : 'menu';
@@ -186,24 +211,38 @@ class LM_Settings {
 	}
 
 	/**
+	 * Sanitize callback for register_setting (persists token separately).
+	 *
+	 * @param mixed $input Raw input.
+	 * @return array Settings without api_token in the main option.
+	 */
+	public static function sanitize_for_option( $input ): array {
+		$sanitized = self::sanitize( $input );
+		self::persist_settings( $sanitized );
+		$stored              = $sanitized;
+		$stored['api_token'] = '';
+		return $stored;
+	}
+
+	/**
 	 * Flush rewrites when permalink-related settings change.
 	 *
 	 * @param mixed $old Old value.
 	 * @param mixed $new New value.
 	 */
 	public static function maybe_flush_rewrites( $old, $new ): void {
-		$old = is_array( $old ) ? $old : array();
-		$new = is_array( $new ) ? $new : array();
+		$old  = is_array( $old ) ? $old : array();
+		$new  = is_array( $new ) ? $new : array();
 		$keys = array( 'permalink_base', 'enable_singles', 'enable_category_archives' );
 		foreach ( $keys as $key ) {
 			if ( ( $old[ $key ] ?? null ) !== ( $new[ $key ] ?? null ) ) {
 				flush_rewrite_rules();
-				LM_Cron::reschedule();
+				MFL_Cron::reschedule();
 				return;
 			}
 		}
 		if ( ( $old['cron_interval'] ?? '' ) !== ( $new['cron_interval'] ?? '' ) ) {
-			LM_Cron::reschedule();
+			MFL_Cron::reschedule();
 		}
 	}
 
@@ -212,16 +251,16 @@ class LM_Settings {
 	 */
 	public static function handle_sync_now(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Forbidden.', 'loyverse-menu' ) );
+			wp_die( esc_html__( 'Forbidden.', 'menu-for-loyverse' ) );
 		}
-		check_admin_referer( 'lm_sync_now' );
+		check_admin_referer( 'mfl_sync_now' );
 
-		$result = LM_Sync::run();
+		$result = MFL_Sync::run();
 		wp_safe_redirect(
 			add_query_arg(
 				array(
-					'page'      => 'loyverse-menu',
-					'lm_notice' => is_wp_error( $result ) ? 'sync_error' : 'sync_ok',
+					'page'       => 'menu-for-loyverse',
+					'mfl_notice' => is_wp_error( $result ) ? 'sync_error' : 'sync_ok',
 				),
 				admin_url( 'options-general.php' )
 			)
@@ -234,12 +273,12 @@ class LM_Settings {
 	 */
 	public static function handle_test_connection(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Forbidden.', 'loyverse-menu' ) );
+			wp_die( esc_html__( 'Forbidden.', 'menu-for-loyverse' ) );
 		}
-		check_admin_referer( 'lm_test_connection' );
+		check_admin_referer( 'mfl_test_connection' );
 
 		$ok     = false;
-		$client = LM_API_Client::from_settings();
+		$client = MFL_API_Client::from_settings();
 		if ( is_wp_error( $client ) ) {
 			self::update_status(
 				array(
@@ -266,7 +305,7 @@ class LM_Settings {
 						'last_error'   => '',
 						'last_message' => sprintf(
 							/* translators: %d: number of stores */
-							__( 'Connection successful. %d store(s) found.', 'loyverse-menu' ),
+							__( 'Connection successful. %d store(s) found.', 'menu-for-loyverse' ),
 							count( $stores )
 						),
 					)
@@ -278,8 +317,8 @@ class LM_Settings {
 		wp_safe_redirect(
 			add_query_arg(
 				array(
-					'page'      => 'loyverse-menu',
-					'lm_notice' => $ok ? 'test_ok' : 'test_error',
+					'page'       => 'menu-for-loyverse',
+					'mfl_notice' => $ok ? 'test_ok' : 'test_error',
 				),
 				admin_url( 'options-general.php' )
 			)
@@ -292,16 +331,16 @@ class LM_Settings {
 	 */
 	public static function handle_register_webhook(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Forbidden.', 'loyverse-menu' ) );
+			wp_die( esc_html__( 'Forbidden.', 'menu-for-loyverse' ) );
 		}
-		check_admin_referer( 'lm_register_webhook' );
+		check_admin_referer( 'mfl_register_webhook' );
 
-		$result = LM_Webhook::register();
+		$result = MFL_Webhook::register();
 		wp_safe_redirect(
 			add_query_arg(
 				array(
-					'page'      => 'loyverse-menu',
-					'lm_notice' => is_wp_error( $result ) ? 'webhook_error' : 'webhook_ok',
+					'page'       => 'menu-for-loyverse',
+					'mfl_notice' => is_wp_error( $result ) ? 'webhook_error' : 'webhook_ok',
 				),
 				admin_url( 'options-general.php' )
 			)
@@ -319,8 +358,8 @@ class LM_Settings {
 
 		$settings = self::get_settings();
 		$status   = self::get_status();
-		$stores = array();
-		$client = LM_API_Client::from_settings();
+		$stores   = array();
+		$client   = MFL_API_Client::from_settings();
 		if ( ! is_wp_error( $client ) ) {
 			$fetched = $client->get_stores();
 			if ( ! is_wp_error( $fetched ) ) {
@@ -329,8 +368,8 @@ class LM_Settings {
 		}
 
 		$token_display = $settings['api_token'] ? '********' : '';
-		$webhook_url   = LM_Webhook::get_endpoint_url();
+		$webhook_url   = MFL_Webhook::get_endpoint_url();
 
-		include LM_PLUGIN_DIR . 'includes/views/settings-page.php';
+		include MFL_PLUGIN_DIR . 'includes/views/settings-page.php';
 	}
 }
