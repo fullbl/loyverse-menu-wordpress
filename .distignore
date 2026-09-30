@@ -23,4 +23,5 @@ README.md
 .wordpress-org
 *.md
 !readme.txt
+docs
 **/.gitkeep

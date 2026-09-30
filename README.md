@@ -78,9 +78,13 @@ npx wp-env run cli wp plugin check fullbl-menu-sync-for-loyverse
 
 Run checks against the built zip by extracting it into a test plugins folder if you want to validate the exact upload artifact.
 
-## WordPress.org assets
+## WordPress.org deploy
 
-See `.wordpress-org/README.md` for icons, banners, and screenshots (SVN `assets/` directory).
+1. Put icons/banners/screenshots in `.wordpress-org/` (see `docs/wporg-assets.md`).
+2. Set repo secrets `SVN_USERNAME` and `SVN_PASSWORD`.
+3. Push a version tag matching the plugin Version / Stable tag, e.g. `git tag 0.1.0 && git push origin 0.1.0`.
+
+The workflow `.github/workflows/wordpress-plugin-deploy.yml` builds the release and deploys via [10up/action-wordpress-plugin-deploy](https://github.com/10up/action-wordpress-plugin-deploy).
 
 ## License
 

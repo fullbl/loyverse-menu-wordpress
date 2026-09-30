@@ -12,13 +12,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build release zip
+      - name: Build release package
         run: bash bin/build-release.sh
 
       - name: WordPress.org plugin deploy
-        uses: 10up/action-wordpress-plugin-deploy@v2
+        uses: 10up/action-wordpress-plugin-deploy@stable
         env:
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
         with:
           slug: fullbl-menu-sync-for-loyverse
+          build-directory: dist/fullbl-menu-sync-for-loyverse

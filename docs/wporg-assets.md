@@ -16,9 +16,6 @@ Place the following in the SVN `assets/` folder (commit alongside `trunk/`, not 
 
 ## Workflow
 
-1. Add PNG placeholders or final artwork under this directory in Git for reference (optional).
-2. On first SVN checkout: `svn co https://plugins.svn.wordpress.org/fullbl-menu-sync-for-loyverse`
-3. Copy icons/banners/screenshots into `assets/` and commit.
-4. Plugin source goes in `trunk/`; tag releases as `tags/<version>/`.
-
-The GitHub Actions workflow (`.github/workflows/wordpress-plugin-deploy.yml`) deploys tagged releases to `trunk/` and `tags/` when `SVN_USERNAME` and `SVN_PASSWORD` secrets are configured. You still upload assets to SVN manually unless you extend the workflow.
+1. Keep final icons/banners/screenshots in `.wordpress-org/` (this repo).
+2. Set GitHub Actions secrets `SVN_USERNAME` and `SVN_PASSWORD` (WordPress.org account).
+3. Push a version tag (e.g. `0.1.0`). The workflow deploys plugin files to SVN `trunk/` + `tags/<version>/` and syncs `.wordpress-org/` to SVN `assets/`.
