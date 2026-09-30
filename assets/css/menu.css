@@ -1,9 +1,9 @@
-/* FullBL Menu Sync for Loyverse — frontend */
+/* FullBL Menu Sync for Loyverse — frontend
+ * Accent, gap and columns come from settings via inline CSS custom properties
+ * on :root (see FBMSL_Assets). Fallbacks below apply when assets are not enqueued.
+ */
 .fbmsl-menu {
-	--fbmsl-accent: #1a1a1a;
-	--fbmsl-gap: 1.5rem;
-	--fbmsl-columns: 2;
-	color: var(--fbmsl-accent);
+	color: var(--fbmsl-accent, #1a1a1a);
 }
 
 .fbmsl-menu__category {
@@ -17,11 +17,11 @@
 	margin: 0;
 	padding: 0;
 	display: grid;
-	gap: var(--fbmsl-gap);
+	gap: var(--fbmsl-gap, 1.5rem);
 }
 
 .fbmsl-menu--grid .fbmsl-menu__list {
-	grid-template-columns: repeat(var(--fbmsl-columns), minmax(0, 1fr));
+	grid-template-columns: repeat(var(--fbmsl-columns, 2), minmax(0, 1fr));
 }
 
 .fbmsl-menu--list .fbmsl-menu__list {
@@ -40,7 +40,7 @@
 	align-items: flex-start;
 	gap: 1rem;
 	padding-bottom: 1rem;
-	border-bottom: 1px solid color-mix(in srgb, var(--fbmsl-accent) 15%, transparent);
+	border-bottom: 1px solid color-mix(in srgb, var(--fbmsl-accent, #1a1a1a) 15%, transparent);
 }
 
 .fbmsl-menu__image {

@@ -22,23 +22,36 @@ class FBMSL_Templates {
 	/**
 	 * Swap theme template for plugin templates when missing overrides.
 	 *
+	 * Block themes: only use an explicit theme override under
+	 * fullbl-menu-sync-for-loyverse/; otherwise let the theme render so we do
+	 * not call get_header()/get_footer() against a block theme.
+	 *
 	 * @param string $template Current template.
 	 * @return string
 	 */
 	public static function template_include( string $template ): string {
 		if ( is_singular( FBMSL_CPT::POST_TYPE ) ) {
-			$custom = self::locate( 'single-fbmsl_item.php' );
-			return $custom ? $custom : $template;
+			$name = 'single-fbmsl_item.php';
+		} elseif ( is_post_type_archive( FBMSL_CPT::POST_TYPE ) ) {
+			$name = 'archive-fbmsl_item.php';
+		} elseif ( is_tax( FBMSL_CPT::TAXONOMY ) ) {
+			$name = 'taxonomy-fbmsl_category.php';
+		} else {
+			return $template;
 		}
-		if ( is_post_type_archive( FBMSL_CPT::POST_TYPE ) ) {
-			$custom = self::locate( 'archive-fbmsl_item.php' );
-			return $custom ? $custom : $template;
+
+		// Theme override always wins (classic and block).
+		$theme = locate_template( array( 'fullbl-menu-sync-for-loyverse/' . $name ) );
+		if ( $theme ) {
+			return $theme;
 		}
-		if ( is_tax( FBMSL_CPT::TAXONOMY ) ) {
-			$custom = self::locate( 'taxonomy-fbmsl_category.php' );
-			return $custom ? $custom : $template;
+
+		if ( function_exists( 'wp_is_block_theme' ) && wp_is_block_theme() ) {
+			return $template;
 		}
-		return $template;
+
+		$path = FBMSL_PLUGIN_DIR . 'templates/' . $name;
+		return file_exists( $path ) ? $path : $template;
 	}
 
 	/**
@@ -75,7 +88,7 @@ class FBMSL_Templates {
 	}
 
 	/**
-	 * Format price for display.
+	 * Format price for display (currency symbol from settings).
 	 *
 	 * @param float|null $price Price.
 	 * @return string
@@ -84,14 +97,43 @@ class FBMSL_Templates {
 		if ( null === $price || '' === $price ) {
 			return '';
 		}
+		$settings  = FBMSL_Settings::get_settings();
 		$formatted = number_format_i18n( (float) $price, 2 );
+		$symbol    = isset( $settings['currency_symbol'] ) ? (string) $settings['currency_symbol'] : '';
+		$position  = isset( $settings['currency_position'] ) ? (string) $settings['currency_position'] : 'before';
+
+		if ( '' !== $symbol ) {
+			$formatted = ( 'after' === $position )
+				? $formatted . ' ' . $symbol
+				: $symbol . ' ' . $formatted;
+		}
+
 		/**
 		 * Filter displayed price HTML/text.
 		 *
-		 * @param string $formatted Formatted number.
+		 * @param string $formatted Formatted number with optional currency.
 		 * @param float  $price     Raw price.
 		 */
 		return (string) apply_filters( 'fbmsl_format_price', $formatted, (float) $price );
+	}
+
+	/**
+	 * Format a stored UTC/ISO datetime for admin display (site timezone + date/time formats).
+	 *
+	 * @param string $datetime Datetime string (e.g. gmdate( 'c' )).
+	 * @return string Empty if unparseable.
+	 */
+	public static function format_datetime( string $datetime ): string {
+		$datetime = trim( $datetime );
+		if ( '' === $datetime ) {
+			return '';
+		}
+		$timestamp = strtotime( $datetime );
+		if ( false === $timestamp ) {
+			return '';
+		}
+		$format = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
+		return (string) wp_date( $format, $timestamp );
 	}
 
 	/**

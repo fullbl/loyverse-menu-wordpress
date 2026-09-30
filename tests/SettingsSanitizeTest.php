@@ -97,4 +97,18 @@ class SettingsSanitizeTest extends TestCase {
 		$this->assertSame( '#1a1a1a', FBMSL_Settings::sanitize_accent_color( 'red' ) );
 		$this->assertSame( '#1a1a1a', FBMSL_Settings::sanitize_accent_color( '#xyz' ) );
 	}
+
+	public function test_sanitize_currency_defaults(): void {
+		$result = FBMSL_Settings::sanitize(
+			array(
+				'api_token'         => 'tok',
+				'currency_symbol'   => '€',
+				'currency_position' => 'after',
+			)
+		);
+
+		$this->assertSame( '€', $result['currency_symbol'] );
+		$this->assertSame( 'after', $result['currency_position'] );
+		$this->assertSame( 'before', FBMSL_Settings::sanitize_currency_position( 'nope' ) );
+	}
 }

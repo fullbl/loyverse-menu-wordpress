@@ -34,6 +34,7 @@ class FBMSL_Plugin {
 	 */
 	private function __construct() {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_textdomain' ) );
+		add_action( 'init', array( __CLASS__, 'maybe_upgrade' ), 5 );
 
 		FBMSL_CPT::init();
 		FBMSL_Settings::init();
@@ -57,11 +58,25 @@ class FBMSL_Plugin {
 	}
 
 	/**
+	 * Flush rewrites when the stored plugin version changes.
+	 */
+	public static function maybe_upgrade(): void {
+		$stored = get_option( FBMSL_Settings::VERSION_KEY, '' );
+		if ( FBMSL_VERSION === $stored ) {
+			return;
+		}
+		FBMSL_CPT::register();
+		flush_rewrite_rules();
+		update_option( FBMSL_Settings::VERSION_KEY, FBMSL_VERSION, false );
+	}
+
+	/**
 	 * Activation tasks.
 	 */
 	public static function activate(): void {
 		FBMSL_CPT::register();
 		flush_rewrite_rules();
+		update_option( FBMSL_Settings::VERSION_KEY, FBMSL_VERSION, false );
 
 		if ( false === get_option( FBMSL_Settings::OPTION_KEY, false ) ) {
 			FBMSL_Settings::update_settings( FBMSL_Settings::defaults() );

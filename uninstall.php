@@ -11,6 +11,7 @@ delete_option( 'fbmsl_settings' );
 delete_option( 'fbmsl_status' );
 delete_option( 'fbmsl_webhook_secret' );
 delete_option( 'fbmsl_api_token' );
+delete_option( 'fbmsl_version' );
 delete_option( 'fbmsl_db_version' );
 
 wp_clear_scheduled_hook( 'fbmsl_cron_sync' );

@@ -87,7 +87,7 @@ defined( 'ABSPATH' ) || exit;
 		<h2><?php echo esc_html__( 'Status', 'fullbl-menu-sync-for-loyverse' ); ?></h2>
 		<ul>
 			<li><strong><?php echo esc_html__( 'Connection:', 'fullbl-menu-sync-for-loyverse' ); ?></strong> <?php echo esc_html( (string) $status['connection'] ); ?></li>
-			<li><strong><?php echo esc_html__( 'Last sync:', 'fullbl-menu-sync-for-loyverse' ); ?></strong> <?php echo esc_html( $status['last_sync'] ? (string) $status['last_sync'] : '—' ); ?></li>
+			<li><strong><?php echo esc_html__( 'Last sync:', 'fullbl-menu-sync-for-loyverse' ); ?></strong> <?php echo esc_html( $status['last_sync'] ? FBMSL_Templates::format_datetime( (string) $status['last_sync'] ) : '—' ); ?></li>
 			<li><strong><?php echo esc_html__( 'Webhook:', 'fullbl-menu-sync-for-loyverse' ); ?></strong> <?php echo esc_html( (string) $status['webhook_status'] ); ?></li>
 			<li><strong><?php echo esc_html__( 'Last error:', 'fullbl-menu-sync-for-loyverse' ); ?></strong> <?php echo esc_html( $status['last_error'] ? (string) $status['last_error'] : '—' ); ?></li>
 			<li><strong><?php echo esc_html__( 'Message:', 'fullbl-menu-sync-for-loyverse' ); ?></strong> <?php echo esc_html( $status['last_message'] ? (string) $status['last_message'] : '—' ); ?></li>
@@ -160,7 +160,7 @@ defined( 'ABSPATH' ) || exit;
 				<th scope="row"><label for="fbmsl_permalink_base"><?php echo esc_html__( 'Permalink base', 'fullbl-menu-sync-for-loyverse' ); ?></label></th>
 				<td>
 					<input type="text" class="regular-text" id="fbmsl_permalink_base" name="<?php echo esc_attr( FBMSL_Settings::OPTION_KEY ); ?>[permalink_base]" value="<?php echo esc_attr( $settings['permalink_base'] ); ?>" />
-					<p class="description"><?php echo esc_html__( 'Default: menu → /menu/, /menu/antipasti/, /menu/margherita/', 'fullbl-menu-sync-for-loyverse' ); ?></p>
+					<p class="description"><?php echo esc_html__( 'Default: menu → items at /menu/{slug}/, categories at /menu-category/{slug}/.', 'fullbl-menu-sync-for-loyverse' ); ?></p>
 				</td>
 			</tr>
 			<tr>
@@ -213,6 +213,22 @@ defined( 'ABSPATH' ) || exit;
 				<td>
 					<input type="text" id="fbmsl_gap" name="<?php echo esc_attr( FBMSL_Settings::OPTION_KEY ); ?>[gap]" value="<?php echo esc_attr( $settings['gap'] ); ?>" />
 					<p class="description"><?php echo esc_html__( 'Number plus unit: px, rem, em, or % (for example 1.5rem).', 'fullbl-menu-sync-for-loyverse' ); ?></p>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="fbmsl_currency_symbol"><?php echo esc_html__( 'Currency symbol', 'fullbl-menu-sync-for-loyverse' ); ?></label></th>
+				<td>
+					<input type="text" class="small-text" id="fbmsl_currency_symbol" name="<?php echo esc_attr( FBMSL_Settings::OPTION_KEY ); ?>[currency_symbol]" value="<?php echo esc_attr( $settings['currency_symbol'] ); ?>" maxlength="8" />
+					<p class="description"><?php echo esc_html__( 'Shown next to prices (for example €, $, or leave empty for number only).', 'fullbl-menu-sync-for-loyverse' ); ?></p>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="fbmsl_currency_position"><?php echo esc_html__( 'Currency position', 'fullbl-menu-sync-for-loyverse' ); ?></label></th>
+				<td>
+					<select id="fbmsl_currency_position" name="<?php echo esc_attr( FBMSL_Settings::OPTION_KEY ); ?>[currency_position]">
+						<option value="before" <?php selected( $settings['currency_position'], 'before' ); ?>><?php echo esc_html__( 'Before price', 'fullbl-menu-sync-for-loyverse' ); ?></option>
+						<option value="after" <?php selected( $settings['currency_position'], 'after' ); ?>><?php echo esc_html__( 'After price', 'fullbl-menu-sync-for-loyverse' ); ?></option>
+					</select>
 				</td>
 			</tr>
 		</table>

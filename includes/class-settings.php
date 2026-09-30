@@ -12,8 +12,9 @@ defined( 'ABSPATH' ) || exit;
  */
 class FBMSL_Settings {
 
-	public const OPTION_KEY = 'fbmsl_settings';
-	public const STATUS_KEY = 'fbmsl_status';
+	public const OPTION_KEY  = 'fbmsl_settings';
+	public const STATUS_KEY  = 'fbmsl_status';
+	public const VERSION_KEY = 'fbmsl_version';
 
 	/**
 	 * Hook admin.
@@ -48,6 +49,8 @@ class FBMSL_Settings {
 			'show_variants'            => 1,
 			'accent_color'             => '#1a1a1a',
 			'gap'                      => '1.5rem',
+			'currency_symbol'          => '€',
+			'currency_position'        => 'before',
 		);
 	}
 
@@ -74,6 +77,26 @@ class FBMSL_Settings {
 			return $matches[1] . $matches[2];
 		}
 		return '1.5rem';
+	}
+
+	/**
+	 * Sanitize currency symbol (short plain text).
+	 *
+	 * @param mixed $symbol Raw symbol.
+	 * @return string
+	 */
+	public static function sanitize_currency_symbol( $symbol ): string {
+		return is_string( $symbol ) ? sanitize_text_field( $symbol ) : '';
+	}
+
+	/**
+	 * Sanitize currency position.
+	 *
+	 * @param mixed $position Raw position.
+	 * @return string before|after
+	 */
+	public static function sanitize_currency_position( $position ): string {
+		return ( 'after' === $position ) ? 'after' : 'before';
 	}
 
 	/**
@@ -107,9 +130,11 @@ class FBMSL_Settings {
 			update_option( 'fbmsl_api_token', $settings['api_token'], false );
 		}
 
-		$settings['accent_color'] = self::sanitize_accent_color( $settings['accent_color'] ?? '' );
-		$settings['gap']          = self::sanitize_gap( $settings['gap'] ?? '' );
-		$settings['columns']      = self::sanitize_columns( $settings['columns'] ?? 2 );
+		$settings['accent_color']      = self::sanitize_accent_color( $settings['accent_color'] ?? '' );
+		$settings['gap']               = self::sanitize_gap( $settings['gap'] ?? '' );
+		$settings['columns']           = self::sanitize_columns( $settings['columns'] ?? 2 );
+		$settings['currency_symbol']   = self::sanitize_currency_symbol( $settings['currency_symbol'] ?? '' );
+		$settings['currency_position'] = self::sanitize_currency_position( $settings['currency_position'] ?? 'before' );
 
 		return $settings;
 	}
@@ -242,6 +267,12 @@ class FBMSL_Settings {
 		$out['gap']                      = isset( $input['gap'] )
 			? self::sanitize_gap( $input['gap'] )
 			: $defaults['gap'];
+		$out['currency_symbol']          = isset( $input['currency_symbol'] )
+			? self::sanitize_currency_symbol( $input['currency_symbol'] )
+			: self::sanitize_currency_symbol( $defaults['currency_symbol'] );
+		$out['currency_position']        = isset( $input['currency_position'] )
+			? self::sanitize_currency_position( $input['currency_position'] )
+			: self::sanitize_currency_position( $defaults['currency_position'] );
 
 		if ( empty( $out['permalink_base'] ) ) {
 			$out['permalink_base'] = 'menu';

@@ -76,10 +76,11 @@ class FBMSL_Locks {
 			printf( '<p><strong>%s</strong> %s</p>', esc_html__( 'Loyverse ID:', 'fullbl-menu-sync-for-loyverse' ), esc_html( (string) $item_id ) );
 		}
 		if ( '' !== $price && null !== $price ) {
-			printf( '<p><strong>%s</strong> %s</p>', esc_html__( 'Price:', 'fullbl-menu-sync-for-loyverse' ), esc_html( (string) $price ) );
+			printf( '<p><strong>%s</strong> %s</p>', esc_html__( 'Price:', 'fullbl-menu-sync-for-loyverse' ), esc_html( FBMSL_Templates::format_price( $price ) ) );
 		}
 		if ( $synced ) {
-			printf( '<p><strong>%s</strong> %s</p>', esc_html__( 'Last sync:', 'fullbl-menu-sync-for-loyverse' ), esc_html( (string) $synced ) );
+			$synced_display = FBMSL_Templates::format_datetime( (string) $synced );
+			printf( '<p><strong>%s</strong> %s</p>', esc_html__( 'Last sync:', 'fullbl-menu-sync-for-loyverse' ), esc_html( $synced_display ? $synced_display : (string) $synced ) );
 		}
 	}
 

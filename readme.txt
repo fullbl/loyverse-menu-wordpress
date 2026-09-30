@@ -14,6 +14,8 @@ Sync your Loyverse POS catalog to WordPress as menu posts and categories—no Wo
 
 FullBL Menu Sync for Loyverse connects WordPress directly to the Loyverse API (no intermediary SaaS). It imports categories, items, descriptions, images, prices, availability, and variants into a custom post type and taxonomy, then keeps them updated via manual sync, WP-Cron, and optional webhooks.
 
+Configure a currency symbol and whether it appears before or after the price. Accent color and spacing apply on the frontend via CSS custom properties.
+
 This plugin is not affiliated with or endorsed by Loyverse.
 
 = Features =
@@ -23,7 +25,7 @@ This plugin is not affiliated with or endorsed by Loyverse.
 * Idempotent sync (no duplicates)
 * Manual sync, WP-Cron reconciliation, and webhook endpoint
 * Shortcode `[fbmsl_menu]`
-* Responsive list/grid layouts with simple style settings
+* Responsive list/grid layouts with accent, gap, and currency display settings
 * Editorial locks so sync does not overwrite locked title, content, or image
 * Translation-ready (works alongside WPML, Polylang, or TranslatePress)
 
@@ -49,7 +51,7 @@ No other third-party analytics or tracking services are used by this plugin.
 1. Upload the plugin folder to `/wp-content/plugins/fullbl-menu-sync-for-loyverse` or install via ZIP from **Plugins → Add New → Upload Plugin**.
 2. Activate the plugin through the **Plugins** screen.
 3. Go to **Settings → FullBL Menu Sync for Loyverse**, enter your Loyverse API token, select a store, and click **Sync now**.
-4. Visit `/menu/` (or your configured permalink base).
+4. Visit `/menu/` (or your configured permalink base). Category archives use `/menu-category/{slug}/` by default.
 
 == Frequently Asked Questions ==
 
@@ -61,6 +63,10 @@ No. This plugin displays a public menu only.
 
 By default, yes for title, description, and image. Use the “Sync Locks” metabox on an item to preserve local edits.
 
+= How do I show a currency symbol on prices? =
+
+In Settings → Display, set **Currency symbol** (for example € or $) and **Currency position** (before or after the price). Leave the symbol empty for a bare number. Developers can still filter output with `fbmsl_format_price`.
+
 = How do webhooks work locally? =
 
 The webhook URL must be publicly reachable over HTTPS. For local development use a tunnel (ngrok, cloudflared). WP-Cron and Sync now work without a tunnel.
@@ -71,9 +77,11 @@ Plugin options, the webhook secret, and scheduled cron events are removed. Synce
 
 == Screenshots ==
 
-1. Settings page with connection status and sync actions.
-2. Frontend menu grid via shortcode.
-3. Single menu item page.
+1. The `[fbmsl_menu]` shortcode on a page (Twenty Twenty-Five): items grouped by category in a responsive grid, with images, descriptions, prices and variants synced from Loyverse.
+2. List layout for a single category: `[fbmsl_menu category="coffee" layout="list" columns="1"]`.
+3. Settings → FullBL Menu Sync for Loyverse: connection status, Sync now / Test connection / Register webhook, masked API token, store selection and automatic sync interval.
+4. Display options: grid or list layout, number of columns, which fields to show, accent color, spacing, and currency symbol/position.
+5. Synced items are regular WordPress posts. Edit them in the block editor and use Sync Locks to keep your own title, description or image on the next sync.
 
 == Changelog ==
 

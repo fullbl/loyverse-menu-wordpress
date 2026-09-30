@@ -59,6 +59,9 @@ class FBMSL_CPT {
 			)
 		);
 
+		// Distinct base so /{base}/{term}/ does not collide with item rewrites under /{base}/{item}/.
+		$category_slug = $slug . '-category';
+
 		register_taxonomy(
 			self::TAXONOMY,
 			self::POST_TYPE,
@@ -81,7 +84,7 @@ class FBMSL_CPT {
 				'show_in_rest'       => true,
 				'rewrite'            => $enable_cats
 					? array(
-						'slug'         => $slug,
+						'slug'         => $category_slug,
 						'with_front'   => false,
 						'hierarchical' => true,
 					)
