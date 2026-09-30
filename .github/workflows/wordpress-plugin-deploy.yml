@@ -20,6 +20,5 @@ jobs:
         env:
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
-        with:
-          slug: fullbl-menu-sync-for-loyverse
-          build-directory: dist/fullbl-menu-sync-for-loyverse
+          SLUG: fullbl-menu-sync-for-loyverse
+          BUILD_DIR: dist/fullbl-menu-sync-for-loyverse
