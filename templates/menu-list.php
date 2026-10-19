@@ -14,6 +14,8 @@
  * @var bool     $group_by_category
  */
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- template vars from include scope.
+
 defined( 'ABSPATH' ) || exit;
 
 $layout            = $layout ?? 'grid';

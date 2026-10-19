@@ -20,6 +20,65 @@ class FBMSL_CPT {
 	 */
 	public static function init(): void {
 		add_action( 'init', array( __CLASS__, 'register' ) );
+		add_action( 'init', array( __CLASS__, 'register_meta' ), 20 );
+	}
+
+	/**
+	 * Register indexed remote-ID meta for lookups (never match by title).
+	 */
+	public static function register_meta(): void {
+		$string_meta = array(
+			'_fbmsl_item_id',
+			'_fbmsl_store_id',
+			'_fbmsl_remote_key',
+			'_fbmsl_variant_ids',
+			'_fbmsl_image_url',
+			'_fbmsl_sync_hash',
+		);
+
+		foreach ( $string_meta as $key ) {
+			register_post_meta(
+				self::POST_TYPE,
+				$key,
+				array(
+					'type'              => 'string',
+					'single'            => true,
+					'show_in_rest'      => false,
+					'auth_callback'     => static function () {
+						return current_user_can( 'edit_posts' );
+					},
+					'sanitize_callback' => 'sanitize_text_field',
+				)
+			);
+		}
+
+		register_post_meta(
+			self::POST_TYPE,
+			'_fbmsl_imported_attachment_id',
+			array(
+				'type'              => 'integer',
+				'single'            => true,
+				'show_in_rest'      => false,
+				'auth_callback'     => static function () {
+					return current_user_can( 'edit_posts' );
+				},
+				'sanitize_callback' => 'absint',
+			)
+		);
+
+		register_term_meta(
+			self::TAXONOMY,
+			'_fbmsl_category_id',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => false,
+				'auth_callback'     => static function () {
+					return current_user_can( 'manage_categories' );
+				},
+				'sanitize_callback' => 'sanitize_text_field',
+			)
+		);
 	}
 
 	/**

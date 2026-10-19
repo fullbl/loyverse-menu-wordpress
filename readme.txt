@@ -4,7 +4,7 @@ Tags: menu, restaurant, pos, food, sync
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 0.1.0
+Stable tag: 0.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -22,8 +22,8 @@ This plugin is not affiliated with or endorsed by Loyverse.
 
 * Direct Loyverse API connection with token and store selection
 * Custom post type for dishes and taxonomy for categories
-* Idempotent sync (no duplicates)
-* Manual sync, WP-Cron reconciliation, and webhook endpoint
+* Idempotent background sync in batches (no duplicates, no parallel runs)
+* Manual sync, WP-Cron reconciliation, and webhook endpoint (fast 200; work runs in a job)
 * Shortcode `[fbmsl_menu]`
 * Responsive list/grid layouts with accent, gap, and currency display settings
 * Editorial locks so sync does not overwrite locked title, content, or image
@@ -61,7 +61,11 @@ No. This plugin displays a public menu only.
 
 = Will sync overwrite my edits? =
 
-By default, yes for title, description, and image. Use the “Sync Locks” metabox on an item to preserve local edits.
+By default, yes for title, description, and image. Use the “Sync Locks” metabox on an item to preserve local edits. Price, variants, and availability are always updated from Loyverse.
+
+= What happens to items deleted in Loyverse? =
+
+After a complete sync pass, missing items are set to draft by default (or moved to trash if you choose that in settings). Optionally delete only the featured image imported by the plugin — never media you attached yourself.
 
 = How do I show a currency symbol on prices? =
 
@@ -85,10 +89,22 @@ Plugin options, the webhook secret, and scheduled cron events are removed. Synce
 
 == Changelog ==
 
+= 0.2.0 =
+* More reliable sync: background batches with checkpoints (categories → items → inventory → cleanup).
+* Manual sync, cron, and the items.update webhook share one idempotent job (Action Scheduler when available).
+* Store-level lock prevents parallel runs; webhook bursts coalesce into a single follow-up.
+* API retries with backoff on 429/5xx; invalid/expired tokens stop the run and show an admin notice.
+* Skips unchanged items via a sync hash; images re-download only when the Loyverse URL changes.
+* Setting for items removed upstream (draft or trash); optional cleanup of plugin-imported images only.
+* Admin status shows last run, in-progress phase/items, pending flag, and last error.
+
 = 0.1.0 =
 * Initial public release.
 
 == Upgrade Notice ==
+
+= 0.2.0 =
+More reliable background sync with batches, locks, and retries. Recommended update.
 
 = 0.1.0 =
 First release.

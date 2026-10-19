@@ -7,6 +7,8 @@
 
 defined( 'ABSPATH' ) || exit;
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- template vars.
+
 get_header();
 
 $settings     = FBMSL_Settings::get_settings();

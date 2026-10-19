@@ -79,27 +79,18 @@ class FBMSL_Webhook {
 	}
 
 	/**
-	 * Handle webhook payload — trigger reconciliation sync.
+	 * Handle webhook payload — enqueue sync job and return 200 immediately.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response
 	 */
 	public static function handle( WP_REST_Request $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
-		// Full sync keeps catalog consistent; cheap enough for restaurant catalogs.
-		$result = FBMSL_Sync::run();
-		if ( is_wp_error( $result ) ) {
-			return new WP_REST_Response(
-				array(
-					'ok'    => false,
-					'error' => $result->get_error_message(),
-				),
-				500
-			);
-		}
+		$result = FBMSL_Sync_Job::enqueue( 'webhook' );
 		return new WP_REST_Response(
 			array(
-				'ok'      => true,
-				'summary' => $result,
+				'ok'       => true,
+				'enqueued' => ! empty( $result['enqueued'] ),
+				'pending'  => ! empty( $result['pending'] ),
 			),
 			200
 		);

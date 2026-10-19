@@ -111,4 +111,24 @@ class SettingsSanitizeTest extends TestCase {
 		$this->assertSame( 'after', $result['currency_position'] );
 		$this->assertSame( 'before', FBMSL_Settings::sanitize_currency_position( 'nope' ) );
 	}
+
+	public function test_sanitize_removed_items_action(): void {
+		$result = FBMSL_Settings::sanitize(
+			array(
+				'api_token'                       => 'tok',
+				'removed_items_action'            => 'trash',
+				'delete_imported_image_on_remove' => 1,
+			)
+		);
+		$this->assertSame( 'trash', $result['removed_items_action'] );
+		$this->assertSame( 1, $result['delete_imported_image_on_remove'] );
+
+		$result2 = FBMSL_Settings::sanitize(
+			array(
+				'api_token'            => 'tok',
+				'removed_items_action' => 'nope',
+			)
+		);
+		$this->assertSame( 'draft', $result2['removed_items_action'] );
+	}
 }

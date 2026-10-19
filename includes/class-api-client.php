@@ -29,6 +29,13 @@ class FBMSL_API_Client {
 	private $request_handler;
 
 	/**
+	 * Whether sleep/backoff should be skipped (unit tests).
+	 *
+	 * @var bool
+	 */
+	private $skip_sleep = false;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param string        $token            Bearer token.
@@ -37,6 +44,15 @@ class FBMSL_API_Client {
 	public function __construct( string $token, ?callable $request_handler = null ) {
 		$this->token           = $token;
 		$this->request_handler = $request_handler;
+	}
+
+	/**
+	 * Disable sleep between retries (tests).
+	 *
+	 * @param bool $skip Skip sleep.
+	 */
+	public function set_skip_sleep( bool $skip ): void {
+		$this->skip_sleep = $skip;
 	}
 
 	/**
@@ -76,7 +92,7 @@ class FBMSL_API_Client {
 	}
 
 	/**
-	 * Fetch all categories (paginated).
+	 * Fetch all categories (paginated). Prefer get_page() during sync.
 	 *
 	 * @return array|WP_Error
 	 */
@@ -85,7 +101,7 @@ class FBMSL_API_Client {
 	}
 
 	/**
-	 * Fetch all items (paginated).
+	 * Fetch all items (paginated). Prefer get_page() during sync.
 	 *
 	 * @return array|WP_Error
 	 */
@@ -104,6 +120,36 @@ class FBMSL_API_Client {
 			'/inventory_levels',
 			'inventory_levels',
 			array( 'store_ids' => $store_id )
+		);
+	}
+
+	/**
+	 * Fetch a single page for resumable sync.
+	 *
+	 * @param string      $path     Endpoint path.
+	 * @param string      $list_key JSON list key.
+	 * @param string|null $cursor   Cursor from previous page.
+	 * @param array       $query    Extra query args.
+	 * @param int         $limit    Page size (max 250).
+	 * @return array{items:array,cursor:?string}|WP_Error
+	 */
+	public function get_page( string $path, string $list_key, ?string $cursor = null, array $query = array(), int $limit = 250 ) {
+		$args = array_merge( $query, array( 'limit' => max( 1, min( 250, $limit ) ) ) );
+		if ( $cursor ) {
+			$args['cursor'] = $cursor;
+		}
+
+		$response = $this->get( $path, $args );
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$batch = isset( $response[ $list_key ] ) && is_array( $response[ $list_key ] ) ? $response[ $list_key ] : array();
+		$next  = ! empty( $response['cursor'] ) ? (string) $response['cursor'] : null;
+
+		return array(
+			'items'  => $batch,
+			'cursor' => $next,
 		);
 	}
 
@@ -170,19 +216,12 @@ class FBMSL_API_Client {
 		$page_count = 0;
 
 		do {
-			$args = array_merge( $query, array( 'limit' => 250 ) );
-			if ( $cursor ) {
-				$args['cursor'] = $cursor;
+			$page = $this->get_page( $path, $list_key, $cursor, $query );
+			if ( is_wp_error( $page ) ) {
+				return $page;
 			}
-
-			$response = $this->get( $path, $args );
-			if ( is_wp_error( $response ) ) {
-				return $response;
-			}
-
-			$batch  = isset( $response[ $list_key ] ) && is_array( $response[ $list_key ] ) ? $response[ $list_key ] : array();
-			$items  = array_merge( $items, $batch );
-			$cursor = ! empty( $response['cursor'] ) ? (string) $response['cursor'] : null;
+			$items  = array_merge( $items, $page['items'] );
+			$cursor = $page['cursor'];
 			++$page_count;
 		} while ( $cursor && $page_count < $max_pages );
 
@@ -190,7 +229,7 @@ class FBMSL_API_Client {
 	}
 
 	/**
-	 * Perform HTTP request.
+	 * Perform HTTP request with auth / rate-limit handling.
 	 *
 	 * @param string     $method HTTP method.
 	 * @param string     $path   Path.
@@ -218,45 +257,152 @@ class FBMSL_API_Client {
 			$args['body'] = wp_json_encode( $body );
 		}
 
-		if ( $this->request_handler ) {
-			$response = call_user_func( $this->request_handler, $url, $args );
-		} else {
-			$response = wp_remote_request( $url, $args );
-		}
+		$max_attempts = (int) apply_filters( 'fbmsl_api_max_retries', 4 );
+		$attempt      = 0;
 
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
+		while ( true ) {
+			++$attempt;
 
-		$code = (int) wp_remote_retrieve_response_code( $response );
-		$raw  = wp_remote_retrieve_body( $response );
-		$data = json_decode( $raw, true );
-
-		if ( $code < 200 || $code >= 300 ) {
-			$message = __( 'Loyverse API request failed.', 'fullbl-menu-sync-for-loyverse' );
-			if ( is_array( $data ) && ! empty( $data['errors'][0]['details'] ) ) {
-				$message = (string) $data['errors'][0]['details'];
-			} elseif ( is_array( $data ) && ! empty( $data['message'] ) ) {
-				$message = (string) $data['message'];
+			if ( $this->request_handler ) {
+				$response = call_user_func( $this->request_handler, $url, $args );
+			} else {
+				$response = wp_remote_request( $url, $args );
 			}
-			return new WP_Error(
-				'fbmsl_api_error',
-				$message,
-				array(
-					'status' => $code,
-					'body'   => $data,
-				)
-			);
-		}
 
-		if ( '' === $raw ) {
-			return array();
-		}
+			if ( is_wp_error( $response ) ) {
+				if ( $attempt >= $max_attempts ) {
+					return $response;
+				}
+				$this->backoff_sleep( $attempt, 0 );
+				continue;
+			}
 
-		if ( ! is_array( $data ) ) {
-			return new WP_Error( 'fbmsl_api_invalid_json', __( 'Invalid JSON from Loyverse API.', 'fullbl-menu-sync-for-loyverse' ) );
-		}
+			$code = (int) wp_remote_retrieve_response_code( $response );
+			$raw  = wp_remote_retrieve_body( $response );
+			$data = json_decode( $raw, true );
 
-		return $data;
+			if ( 401 === $code || 403 === $code ) {
+				$message = $this->extract_error_message( $data, __( 'Loyverse API token is invalid or expired.', 'fullbl-menu-sync-for-loyverse' ) );
+				return new WP_Error(
+					'fbmsl_api_auth',
+					$message,
+					array(
+						'status' => $code,
+						'body'   => $data,
+					)
+				);
+			}
+
+			if ( 429 === $code || $code >= 500 ) {
+				if ( $attempt >= $max_attempts ) {
+					$message     = $this->extract_error_message(
+						$data,
+						429 === $code
+							? __( 'Loyverse API rate limit reached. Sync will retry later.', 'fullbl-menu-sync-for-loyverse' )
+							: __( 'Loyverse API temporarily unavailable.', 'fullbl-menu-sync-for-loyverse' )
+					);
+					$retry_after = $this->parse_retry_after( $response );
+					return new WP_Error(
+						429 === $code ? 'fbmsl_api_rate_limit' : 'fbmsl_api_server',
+						$message,
+						array(
+							'status'      => $code,
+							'body'        => $data,
+							'retry_after' => $retry_after,
+						)
+					);
+				}
+				$retry_after = $this->parse_retry_after( $response );
+				$this->backoff_sleep( $attempt, $retry_after );
+				continue;
+			}
+
+			if ( $code < 200 || $code >= 300 ) {
+				$message = $this->extract_error_message( $data, __( 'Loyverse API request failed.', 'fullbl-menu-sync-for-loyverse' ) );
+				return new WP_Error(
+					'fbmsl_api_error',
+					$message,
+					array(
+						'status' => $code,
+						'body'   => $data,
+					)
+				);
+			}
+
+			if ( '' === $raw ) {
+				return array();
+			}
+
+			if ( ! is_array( $data ) ) {
+				return new WP_Error( 'fbmsl_api_invalid_json', __( 'Invalid JSON from Loyverse API.', 'fullbl-menu-sync-for-loyverse' ) );
+			}
+
+			return $data;
+		}
+	}
+
+	/**
+	 * Extract human-readable API error.
+	 *
+	 * @param mixed  $data            Decoded body.
+	 * @param string $fallback_message Fallback message.
+	 * @return string
+	 */
+	private function extract_error_message( $data, string $fallback_message ): string {
+		if ( is_array( $data ) && ! empty( $data['errors'][0]['details'] ) ) {
+			return (string) $data['errors'][0]['details'];
+		}
+		if ( is_array( $data ) && ! empty( $data['message'] ) ) {
+			return (string) $data['message'];
+		}
+		return $fallback_message;
+	}
+
+	/**
+	 * Parse Retry-After header (seconds).
+	 *
+	 * @param array|mixed $response HTTP response.
+	 * @return int
+	 */
+	private function parse_retry_after( $response ): int {
+		if ( ! is_array( $response ) ) {
+			return 0;
+		}
+		$headers = isset( $response['headers'] ) ? $response['headers'] : array();
+		$value   = '';
+		if ( is_array( $headers ) && isset( $headers['retry-after'] ) ) {
+			$value = $headers['retry-after'];
+		} elseif ( is_object( $headers ) && method_exists( $headers, 'offsetGet' ) ) {
+			$value = $headers['retry-after'] ?? '';
+		}
+		if ( is_array( $value ) ) {
+			$value = $value[0] ?? '';
+		}
+		$seconds = (int) $value;
+		return max( 0, min( 300, $seconds ) );
+	}
+
+	/**
+	 * Sleep with exponential backoff.
+	 *
+	 * @param int $attempt     Attempt number (1-based).
+	 * @param int $retry_after Hint from Retry-After header.
+	 */
+	private function backoff_sleep( int $attempt, int $retry_after ): void {
+		if ( $this->skip_sleep ) {
+			return;
+		}
+		$base = (int) apply_filters( 'fbmsl_api_backoff_base', 2 );
+		$wait = $retry_after > 0 ? $retry_after : (int) min( 60, pow( $base, $attempt ) );
+		/**
+		 * Filter sleep seconds before API retry.
+		 *
+		 * @param int $wait    Seconds.
+		 * @param int $attempt Attempt number.
+		 */
+		$wait = (int) apply_filters( 'fbmsl_api_backoff_seconds', $wait, $attempt );
+		if ( $wait > 0 ) {
+			sleep( $wait );
+		}
 	}
 }

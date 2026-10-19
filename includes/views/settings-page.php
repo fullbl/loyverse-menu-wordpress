@@ -12,6 +12,8 @@
  */
 
 defined( 'ABSPATH' ) || exit;
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- view vars from include scope.
 ?>
 <div class="wrap fbmsl-settings">
 	<h1><?php echo esc_html__( 'FullBL Menu Sync for Loyverse', 'fullbl-menu-sync-for-loyverse' ); ?></h1>
@@ -28,6 +30,12 @@ defined( 'ABSPATH' ) || exit;
 				$notice_text = $status['last_message']
 					? (string) $status['last_message']
 					: __( 'Sync completed.', 'fullbl-menu-sync-for-loyverse' );
+				break;
+			case 'sync_progress':
+				$notice_type = 'info';
+				$notice_text = $status['last_message']
+					? (string) $status['last_message']
+					: __( 'Sync started in the background. This page shows live progress.', 'fullbl-menu-sync-for-loyverse' );
 				break;
 			case 'sync_error':
 				$notice_type = 'error';
@@ -88,6 +96,28 @@ defined( 'ABSPATH' ) || exit;
 		<ul>
 			<li><strong><?php echo esc_html__( 'Connection:', 'fullbl-menu-sync-for-loyverse' ); ?></strong> <?php echo esc_html( (string) $status['connection'] ); ?></li>
 			<li><strong><?php echo esc_html__( 'Last sync:', 'fullbl-menu-sync-for-loyverse' ); ?></strong> <?php echo esc_html( $status['last_sync'] ? FBMSL_Templates::format_datetime( (string) $status['last_sync'] ) : '—' ); ?></li>
+			<li>
+				<strong><?php echo esc_html__( 'Sync progress:', 'fullbl-menu-sync-for-loyverse' ); ?></strong>
+				<?php
+				if ( ! empty( $status['sync_in_progress'] ) ) {
+					printf(
+						/* translators: 1: phase name, 2: items processed */
+						esc_html__( 'In progress — phase %1$s, %2$d items done', 'fullbl-menu-sync-for-loyverse' ),
+						esc_html( (string) ( $status['sync_phase'] ? $status['sync_phase'] : '—' ) ),
+						(int) $status['sync_items_done']
+					);
+				} else {
+					echo esc_html__( 'Idle', 'fullbl-menu-sync-for-loyverse' );
+				}
+				?>
+			</li>
+			<li>
+				<strong><?php echo esc_html__( 'Resync pending:', 'fullbl-menu-sync-for-loyverse' ); ?></strong>
+				<?php
+				$pending = ! empty( $status['sync_pending'] ) || FBMSL_Sync_Lock::is_pending();
+				echo esc_html( $pending ? __( 'Yes', 'fullbl-menu-sync-for-loyverse' ) : __( 'No', 'fullbl-menu-sync-for-loyverse' ) );
+				?>
+			</li>
 			<li><strong><?php echo esc_html__( 'Webhook:', 'fullbl-menu-sync-for-loyverse' ); ?></strong> <?php echo esc_html( (string) $status['webhook_status'] ); ?></li>
 			<li><strong><?php echo esc_html__( 'Last error:', 'fullbl-menu-sync-for-loyverse' ); ?></strong> <?php echo esc_html( $status['last_error'] ? (string) $status['last_error'] : '—' ); ?></li>
 			<li><strong><?php echo esc_html__( 'Message:', 'fullbl-menu-sync-for-loyverse' ); ?></strong> <?php echo esc_html( $status['last_message'] ? (string) $status['last_message'] : '—' ); ?></li>
@@ -150,6 +180,20 @@ defined( 'ABSPATH' ) || exit;
 						<option value="twicedaily" <?php selected( $settings['cron_interval'], 'twicedaily' ); ?>><?php echo esc_html__( 'Twice daily', 'fullbl-menu-sync-for-loyverse' ); ?></option>
 						<option value="daily" <?php selected( $settings['cron_interval'], 'daily' ); ?>><?php echo esc_html__( 'Daily', 'fullbl-menu-sync-for-loyverse' ); ?></option>
 					</select>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="fbmsl_removed_items_action"><?php echo esc_html__( 'Items removed upstream', 'fullbl-menu-sync-for-loyverse' ); ?></label></th>
+				<td>
+					<select id="fbmsl_removed_items_action" name="<?php echo esc_attr( FBMSL_Settings::OPTION_KEY ); ?>[removed_items_action]">
+						<option value="draft" <?php selected( $settings['removed_items_action'] ?? 'draft', 'draft' ); ?>><?php echo esc_html__( 'Set to draft (default)', 'fullbl-menu-sync-for-loyverse' ); ?></option>
+						<option value="trash" <?php selected( $settings['removed_items_action'] ?? 'draft', 'trash' ); ?>><?php echo esc_html__( 'Move to trash', 'fullbl-menu-sync-for-loyverse' ); ?></option>
+					</select>
+					<p class="description"><?php echo esc_html__( 'Applied only after a complete sync pass. Never matches items by title — only by Loyverse ID.', 'fullbl-menu-sync-for-loyverse' ); ?></p>
+					<label>
+						<input type="checkbox" name="<?php echo esc_attr( FBMSL_Settings::OPTION_KEY ); ?>[delete_imported_image_on_remove]" value="1" <?php checked( ! empty( $settings['delete_imported_image_on_remove'] ) ); ?> />
+						<?php echo esc_html__( 'When trashing, delete the plugin-imported featured image (never deletes images you attached manually)', 'fullbl-menu-sync-for-loyverse' ); ?>
+					</label>
 				</td>
 			</tr>
 		</table>

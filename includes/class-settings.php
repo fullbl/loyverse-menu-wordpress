@@ -22,6 +22,7 @@ class FBMSL_Settings {
 	public static function init(): void {
 		add_action( 'admin_menu', array( __CLASS__, 'register_menu' ) );
 		add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
+		add_action( 'admin_notices', array( __CLASS__, 'maybe_auth_notice' ) );
 		add_action( 'admin_post_fbmsl_sync_now', array( __CLASS__, 'handle_sync_now' ) );
 		add_action( 'admin_post_fbmsl_test_connection', array( __CLASS__, 'handle_test_connection' ) );
 		add_action( 'admin_post_fbmsl_register_webhook', array( __CLASS__, 'handle_register_webhook' ) );
@@ -35,22 +36,24 @@ class FBMSL_Settings {
 	 */
 	public static function defaults(): array {
 		return array(
-			'api_token'                => '',
-			'store_id'                 => '',
-			'permalink_base'           => 'menu',
-			'enable_singles'           => 1,
-			'enable_category_archives' => 1,
-			'cron_interval'            => 'hourly',
-			'layout'                   => 'grid',
-			'columns'                  => 2,
-			'show_images'              => 1,
-			'show_descriptions'        => 1,
-			'show_prices'              => 1,
-			'show_variants'            => 1,
-			'accent_color'             => '#1a1a1a',
-			'gap'                      => '1.5rem',
-			'currency_symbol'          => '€',
-			'currency_position'        => 'before',
+			'api_token'                       => '',
+			'store_id'                        => '',
+			'permalink_base'                  => 'menu',
+			'enable_singles'                  => 1,
+			'enable_category_archives'        => 1,
+			'cron_interval'                   => 'hourly',
+			'layout'                          => 'grid',
+			'columns'                         => 2,
+			'show_images'                     => 1,
+			'show_descriptions'               => 1,
+			'show_prices'                     => 1,
+			'show_variants'                   => 1,
+			'accent_color'                    => '#1a1a1a',
+			'gap'                             => '1.5rem',
+			'currency_symbol'                 => '€',
+			'currency_position'               => 'before',
+			'removed_items_action'            => 'draft',
+			'delete_imported_image_on_remove' => 0,
 		);
 	}
 
@@ -174,14 +177,40 @@ class FBMSL_Settings {
 		}
 		return array_merge(
 			array(
-				'connection'     => 'unknown',
-				'last_sync'      => '',
-				'last_error'     => '',
-				'webhook_status' => 'unregistered',
-				'webhook_id'     => '',
-				'last_message'   => '',
+				'connection'       => 'unknown',
+				'last_sync'        => '',
+				'last_error'       => '',
+				'webhook_status'   => 'unregistered',
+				'webhook_id'       => '',
+				'last_message'     => '',
+				'sync_in_progress' => 0,
+				'sync_phase'       => '',
+				'sync_items_done'  => 0,
+				'sync_pending'     => 0,
+				'auth_error'       => 0,
 			),
 			$status
+		);
+	}
+
+	/**
+	 * Admin notice when the Loyverse token is invalid/expired.
+	 */
+	public static function maybe_auth_notice(): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		$status = self::get_status();
+		if ( empty( $status['auth_error'] ) ) {
+			return;
+		}
+		$message = $status['last_error']
+			? (string) $status['last_error']
+			: __( 'Loyverse API token is invalid or expired. Update it under Settings → FullBL Menu Sync for Loyverse.', 'fullbl-menu-sync-for-loyverse' );
+		printf(
+			'<div class="notice notice-error"><p><strong>%1$s</strong> %2$s</p></div>',
+			esc_html__( 'FullBL Menu Sync for Loyverse:', 'fullbl-menu-sync-for-loyverse' ),
+			esc_html( $message )
 		);
 	}
 
@@ -242,37 +271,41 @@ class FBMSL_Settings {
 			$out['api_token'] = sanitize_text_field( $token );
 		}
 
-		$out['store_id']                 = array_key_exists( 'store_id', $input )
+		$out['store_id']                        = array_key_exists( 'store_id', $input )
 			? sanitize_text_field( (string) $input['store_id'] )
 			: (string) ( $current['store_id'] ?? '' );
-		$out['permalink_base']           = isset( $input['permalink_base'] ) ? sanitize_title( (string) $input['permalink_base'] ) : 'menu';
-		$out['enable_singles']           = empty( $input['enable_singles'] ) ? 0 : 1;
-		$out['enable_category_archives'] = empty( $input['enable_category_archives'] ) ? 0 : 1;
-		$out['cron_interval']            = isset( $input['cron_interval'] ) && in_array( $input['cron_interval'], array( 'hourly', 'twicedaily', 'daily' ), true )
+		$out['permalink_base']                  = isset( $input['permalink_base'] ) ? sanitize_title( (string) $input['permalink_base'] ) : 'menu';
+		$out['enable_singles']                  = empty( $input['enable_singles'] ) ? 0 : 1;
+		$out['enable_category_archives']        = empty( $input['enable_category_archives'] ) ? 0 : 1;
+		$out['cron_interval']                   = isset( $input['cron_interval'] ) && in_array( $input['cron_interval'], array( 'hourly', 'twicedaily', 'daily' ), true )
 			? $input['cron_interval']
 			: 'hourly';
-		$out['layout']                   = isset( $input['layout'] ) && in_array( $input['layout'], array( 'grid', 'list' ), true )
+		$out['layout']                          = isset( $input['layout'] ) && in_array( $input['layout'], array( 'grid', 'list' ), true )
 			? $input['layout']
 			: 'grid';
-		$out['columns']                  = isset( $input['columns'] )
+		$out['columns']                         = isset( $input['columns'] )
 			? self::sanitize_columns( $input['columns'] )
 			: self::sanitize_columns( $defaults['columns'] );
-		$out['show_images']              = empty( $input['show_images'] ) ? 0 : 1;
-		$out['show_descriptions']        = empty( $input['show_descriptions'] ) ? 0 : 1;
-		$out['show_prices']              = empty( $input['show_prices'] ) ? 0 : 1;
-		$out['show_variants']            = empty( $input['show_variants'] ) ? 0 : 1;
-		$out['accent_color']             = isset( $input['accent_color'] )
+		$out['show_images']                     = empty( $input['show_images'] ) ? 0 : 1;
+		$out['show_descriptions']               = empty( $input['show_descriptions'] ) ? 0 : 1;
+		$out['show_prices']                     = empty( $input['show_prices'] ) ? 0 : 1;
+		$out['show_variants']                   = empty( $input['show_variants'] ) ? 0 : 1;
+		$out['accent_color']                    = isset( $input['accent_color'] )
 			? self::sanitize_accent_color( $input['accent_color'] )
 			: $defaults['accent_color'];
-		$out['gap']                      = isset( $input['gap'] )
+		$out['gap']                             = isset( $input['gap'] )
 			? self::sanitize_gap( $input['gap'] )
 			: $defaults['gap'];
-		$out['currency_symbol']          = isset( $input['currency_symbol'] )
+		$out['currency_symbol']                 = isset( $input['currency_symbol'] )
 			? self::sanitize_currency_symbol( $input['currency_symbol'] )
 			: self::sanitize_currency_symbol( $defaults['currency_symbol'] );
-		$out['currency_position']        = isset( $input['currency_position'] )
+		$out['currency_position']               = isset( $input['currency_position'] )
 			? self::sanitize_currency_position( $input['currency_position'] )
 			: self::sanitize_currency_position( $defaults['currency_position'] );
+		$out['removed_items_action']            = isset( $input['removed_items_action'] ) && 'trash' === $input['removed_items_action']
+			? 'trash'
+			: 'draft';
+		$out['delete_imported_image_on_remove'] = empty( $input['delete_imported_image_on_remove'] ) ? 0 : 1;
 
 		if ( empty( $out['permalink_base'] ) ) {
 			$out['permalink_base'] = 'menu';
@@ -318,7 +351,7 @@ class FBMSL_Settings {
 	}
 
 	/**
-	 * Handle Sync Now.
+	 * Handle Sync Now — enqueue job and run the first batch inline for UX.
 	 */
 	public static function handle_sync_now(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -326,12 +359,19 @@ class FBMSL_Settings {
 		}
 		check_admin_referer( 'fbmsl_sync_now' );
 
-		$result = FBMSL_Sync::run();
+		$result = FBMSL_Sync_Job::enqueue_and_run_first();
+		$notice = 'sync_ok';
+		if ( is_wp_error( $result ) ) {
+			$notice = 'sync_error';
+		} elseif ( is_array( $result ) && empty( $result['done'] ) ) {
+			$notice = 'sync_progress';
+		}
+
 		wp_safe_redirect(
 			add_query_arg(
 				array(
 					'page'         => 'fullbl-menu-sync-for-loyverse',
-					'fbmsl_notice' => is_wp_error( $result ) ? 'sync_error' : 'sync_ok',
+					'fbmsl_notice' => $notice,
 				),
 				admin_url( 'options-general.php' )
 			)
@@ -374,6 +414,7 @@ class FBMSL_Settings {
 					array(
 						'connection'   => 'ok',
 						'last_error'   => '',
+						'auth_error'   => 0,
 						'last_message' => sprintf(
 							/* translators: %d: number of stores */
 							__( 'Connection successful. %d store(s) found.', 'fullbl-menu-sync-for-loyverse' ),

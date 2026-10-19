@@ -38,4 +38,30 @@ class SyncHelpersTest extends TestCase {
 	public function test_variant_price_without_default_returns_null(): void {
 		$this->assertNull( FBMSL_Sync::variant_price( array(), 's1' ) );
 	}
+
+	public function test_price_change_during_sync_updates_hash(): void {
+		$before = FBMSL_Sync::compute_sync_hash(
+			array(
+				'price'    => 10,
+				'variants' => array(
+					array(
+						'variant_id' => 'v1',
+						'price'      => 10,
+					),
+				),
+			)
+		);
+		$after  = FBMSL_Sync::compute_sync_hash(
+			array(
+				'price'    => 11,
+				'variants' => array(
+					array(
+						'variant_id' => 'v1',
+						'price'      => 11,
+					),
+				),
+			)
+		);
+		$this->assertNotSame( $before, $after );
+	}
 }

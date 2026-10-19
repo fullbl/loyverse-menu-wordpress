@@ -33,28 +33,17 @@ class FBMSL_Plugin {
 	 * Constructor.
 	 */
 	private function __construct() {
-		add_action( 'plugins_loaded', array( __CLASS__, 'load_textdomain' ) );
 		add_action( 'init', array( __CLASS__, 'maybe_upgrade' ), 5 );
 
 		FBMSL_CPT::init();
 		FBMSL_Settings::init();
+		FBMSL_Sync_Job::init();
 		FBMSL_Cron::init();
 		FBMSL_Webhook::init();
 		FBMSL_Shortcode::init();
 		FBMSL_Assets::init();
 		FBMSL_Locks::init();
 		FBMSL_Templates::init();
-	}
-
-	/**
-	 * Load translations.
-	 */
-	public static function load_textdomain(): void {
-		load_plugin_textdomain(
-			'fullbl-menu-sync-for-loyverse',
-			false,
-			dirname( FBMSL_PLUGIN_BASENAME ) . '/languages'
-		);
 	}
 
 	/**
@@ -94,6 +83,7 @@ class FBMSL_Plugin {
 	 */
 	public static function deactivate(): void {
 		FBMSL_Cron::unschedule();
+		wp_clear_scheduled_hook( FBMSL_Sync_Job::HOOK );
 		flush_rewrite_rules();
 	}
 }

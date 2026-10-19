@@ -53,6 +53,7 @@ class FBMSL_Shortcode {
 		);
 
 		if ( $atts['category'] ) {
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- shortcode category filter.
 			$query_args['tax_query'] = array(
 				array(
 					'taxonomy' => FBMSL_CPT::TAXONOMY,

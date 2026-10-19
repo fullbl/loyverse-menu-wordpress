@@ -18,7 +18,14 @@ class FBMSL_Cron {
 	 * Register hooks.
 	 */
 	public static function init(): void {
-		add_action( self::HOOK, array( 'FBMSL_Sync', 'run' ) );
+		add_action( self::HOOK, array( __CLASS__, 'trigger' ) );
+	}
+
+	/**
+	 * Cron callback — enqueue the same idempotent job.
+	 */
+	public static function trigger(): void {
+		FBMSL_Sync_Job::enqueue( 'cron' );
 	}
 
 	/**
