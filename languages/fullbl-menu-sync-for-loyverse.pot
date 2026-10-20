@@ -1,0 +1,531 @@
+# Copyright (C) 2026 FullBL
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: FullBL Menu Sync for Loyverse 0.2.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/loyverse-menu-wordpress\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-10-20T10:18:24+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: fullbl-menu-sync-for-loyverse\n"
+
+#. Plugin Name of the plugin
+#: fullbl-menu-sync-for-loyverse.php
+#: includes/class-settings.php:265
+#: includes/class-settings.php:266
+#: includes/views/settings-page.php:19
+msgid "FullBL Menu Sync for Loyverse"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: fullbl-menu-sync-for-loyverse.php
+msgid "https://github.com/fullbl/loyverse-menu-wordpress"
+msgstr ""
+
+#. Description of the plugin
+#: fullbl-menu-sync-for-loyverse.php
+msgid "Sync your Loyverse POS menu to WordPress as real posts and categories."
+msgstr ""
+
+#. Author of the plugin
+#: fullbl-menu-sync-for-loyverse.php
+msgid "FullBL"
+msgstr ""
+
+#. Author URI of the plugin
+#: fullbl-menu-sync-for-loyverse.php
+msgid "https://fullbl.it"
+msgstr ""
+
+#: includes/class-api-client.php:67
+msgid "Loyverse API token is not configured."
+msgstr ""
+
+#: includes/class-api-client.php:285
+msgid "Loyverse API token is invalid or expired."
+msgstr ""
+
+#: includes/class-api-client.php:301
+msgid "Loyverse API rate limit reached. Sync will retry later."
+msgstr ""
+
+#: includes/class-api-client.php:302
+msgid "Loyverse API temporarily unavailable."
+msgstr ""
+
+#: includes/class-api-client.php:321
+msgid "Loyverse API request failed."
+msgstr ""
+
+#: includes/class-api-client.php:337
+msgid "Invalid JSON from Loyverse API."
+msgstr ""
+
+#: includes/class-cpt.php:132
+msgid "Menu Items"
+msgstr ""
+
+#: includes/class-cpt.php:133
+msgid "Menu Item"
+msgstr ""
+
+#: includes/class-cpt.php:134
+msgid "Add New Menu Item"
+msgstr ""
+
+#: includes/class-cpt.php:135
+msgid "Edit Menu Item"
+msgstr ""
+
+#: includes/class-cpt.php:136
+msgid "View Menu Item"
+msgstr ""
+
+#: includes/class-cpt.php:137
+msgid "Search Menu Items"
+msgstr ""
+
+#: includes/class-cpt.php:138
+#: templates/menu-list.php:30
+msgid "No menu items found."
+msgstr ""
+
+#: includes/class-cpt.php:163
+msgid "Menu Categories"
+msgstr ""
+
+#: includes/class-cpt.php:164
+msgid "Menu Category"
+msgstr ""
+
+#: includes/class-cpt.php:165
+msgid "Search Menu Categories"
+msgstr ""
+
+#: includes/class-cpt.php:166
+msgid "All Menu Categories"
+msgstr ""
+
+#: includes/class-cpt.php:167
+msgid "Edit Menu Category"
+msgstr ""
+
+#: includes/class-cpt.php:168
+msgid "Update Menu Category"
+msgstr ""
+
+#: includes/class-cpt.php:169
+msgid "Add New Menu Category"
+msgstr ""
+
+#: includes/class-cpt.php:170
+msgid "New Menu Category Name"
+msgstr ""
+
+#: includes/class-locks.php:41
+msgid "Sync Locks"
+msgstr ""
+
+#: includes/class-locks.php:57
+msgid "Lock title (keep WordPress title on sync)"
+msgstr ""
+
+#: includes/class-locks.php:58
+msgid "Lock description (keep WordPress content on sync)"
+msgstr ""
+
+#: includes/class-locks.php:59
+msgid "Lock image (keep featured image on sync)"
+msgstr ""
+
+#: includes/class-locks.php:76
+msgid "Loyverse ID:"
+msgstr ""
+
+#: includes/class-locks.php:79
+msgid "Price:"
+msgstr ""
+
+#: includes/class-locks.php:83
+#: includes/views/settings-page.php:98
+msgid "Last sync:"
+msgstr ""
+
+#: includes/class-settings.php:243
+msgid "Loyverse API token is invalid or expired. Update it under Settings → FullBL Menu Sync for Loyverse."
+msgstr ""
+
+#: includes/class-settings.php:246
+msgid "FullBL Menu Sync for Loyverse:"
+msgstr ""
+
+#: includes/class-settings.php:413
+#: includes/class-settings.php:442
+#: includes/class-settings.php:501
+msgid "Forbidden."
+msgstr ""
+
+#. translators: %d: number of stores
+#: includes/class-settings.php:475
+#, php-format
+msgid "Connection successful. %d store(s) found."
+msgstr ""
+
+#: includes/class-sync-job.php:45
+msgid "Sync already queued; another run is pending."
+msgstr ""
+
+#. translators: %s: trigger source
+#: includes/class-sync-job.php:62
+#, php-format
+msgid "Sync queued (%s)."
+msgstr ""
+
+#: includes/class-sync.php:61
+msgid "Sync is already running; a follow-up was queued."
+msgstr ""
+
+#. translators: 1: phase, 2: source
+#: includes/class-sync.php:104
+#, php-format
+msgid "Sync in progress (%1$s, via %2$s)…"
+msgstr ""
+
+#. translators: 1: category count, 2: item count
+#: includes/class-sync.php:146
+#, php-format
+msgid "Synced %1$d categories and %2$d items."
+msgstr ""
+
+#. translators: 1: phase, 2: items done
+#: includes/class-sync.php:168
+#, php-format
+msgid "Sync progress: %1$s — %2$d items processed."
+msgstr ""
+
+#. translators: %d: seconds
+#: includes/class-sync.php:222
+#, php-format
+msgid "Temporary API issue — retrying in %d seconds."
+msgstr ""
+
+#: includes/class-webhook.php:76
+msgid "Invalid webhook token."
+msgstr ""
+
+#: includes/class-webhook.php:144
+#: includes/views/settings-page.php:70
+msgid "Webhook registered."
+msgstr ""
+
+#: includes/views/settings-page.php:32
+msgid "Sync completed."
+msgstr ""
+
+#: includes/views/settings-page.php:38
+msgid "Sync started in the background. This page shows live progress."
+msgstr ""
+
+#. translators: %s: error message
+#: includes/views/settings-page.php:45
+#, php-format
+msgid "Sync failed: %s"
+msgstr ""
+
+#: includes/views/settings-page.php:48
+msgid "Sync failed."
+msgstr ""
+
+#: includes/views/settings-page.php:54
+msgid "Connection successful."
+msgstr ""
+
+#. translators: %s: error message
+#: includes/views/settings-page.php:61
+#, php-format
+msgid "Connection failed: %s"
+msgstr ""
+
+#: includes/views/settings-page.php:64
+msgid "Connection failed."
+msgstr ""
+
+#. translators: %s: error message
+#: includes/views/settings-page.php:77
+#, php-format
+msgid "Webhook registration failed: %s"
+msgstr ""
+
+#: includes/views/settings-page.php:80
+msgid "Webhook registration failed."
+msgstr ""
+
+#: includes/views/settings-page.php:95
+msgid "Status"
+msgstr ""
+
+#: includes/views/settings-page.php:97
+msgid "Connection:"
+msgstr ""
+
+#: includes/views/settings-page.php:100
+msgid "Sync progress:"
+msgstr ""
+
+#. translators: 1: phase name, 2: items processed
+#: includes/views/settings-page.php:105
+#, php-format
+msgid "In progress — phase %1$s, %2$d items done"
+msgstr ""
+
+#: includes/views/settings-page.php:110
+msgid "Idle"
+msgstr ""
+
+#: includes/views/settings-page.php:115
+msgid "Resync pending:"
+msgstr ""
+
+#: includes/views/settings-page.php:118
+msgid "Yes"
+msgstr ""
+
+#: includes/views/settings-page.php:118
+msgid "No"
+msgstr ""
+
+#: includes/views/settings-page.php:121
+msgid "Webhook:"
+msgstr ""
+
+#: includes/views/settings-page.php:122
+msgid "Last error:"
+msgstr ""
+
+#: includes/views/settings-page.php:123
+msgid "Message:"
+msgstr ""
+
+#: includes/views/settings-page.php:128
+msgid "Sync now"
+msgstr ""
+
+#: includes/views/settings-page.php:131
+msgid "Test connection"
+msgstr ""
+
+#: includes/views/settings-page.php:134
+msgid "Register webhook"
+msgstr ""
+
+#: includes/views/settings-page.php:138
+msgid "Webhook URL (needs a public HTTPS URL; use a tunnel for local testing):"
+msgstr ""
+
+#: includes/views/settings-page.php:146
+msgid "Connection"
+msgstr ""
+
+#: includes/views/settings-page.php:149
+msgid "API token"
+msgstr ""
+
+#: includes/views/settings-page.php:152
+msgid "Personal access token from Loyverse Back Office → Integrations → Access Tokens. Leave blank (or ********) to keep the current token."
+msgstr ""
+
+#: includes/views/settings-page.php:156
+msgid "Store"
+msgstr ""
+
+#: includes/views/settings-page.php:160
+msgid "Save an API token first, then Test connection to choose a store."
+msgstr ""
+
+#: includes/views/settings-page.php:163
+msgid "— Select store —"
+msgstr ""
+
+#: includes/views/settings-page.php:170
+msgid "Required for inventory/availability. Saved with the settings form."
+msgstr ""
+
+#: includes/views/settings-page.php:173
+msgid "Run Test connection to load stores, or paste the store ID."
+msgstr ""
+
+#: includes/views/settings-page.php:178
+msgid "Automatic sync"
+msgstr ""
+
+#: includes/views/settings-page.php:181
+msgid "Hourly"
+msgstr ""
+
+#: includes/views/settings-page.php:182
+msgid "Twice daily"
+msgstr ""
+
+#: includes/views/settings-page.php:183
+msgid "Daily"
+msgstr ""
+
+#: includes/views/settings-page.php:188
+msgid "Items removed upstream"
+msgstr ""
+
+#: includes/views/settings-page.php:191
+msgid "Set to draft (default)"
+msgstr ""
+
+#: includes/views/settings-page.php:192
+msgid "Move to trash"
+msgstr ""
+
+#: includes/views/settings-page.php:194
+msgid "Applied only after a complete sync pass. Never matches items by title — only by Loyverse ID."
+msgstr ""
+
+#: includes/views/settings-page.php:197
+msgid "When trashing, delete the plugin-imported featured image (never deletes images you attached manually)"
+msgstr ""
+
+#: includes/views/settings-page.php:206
+msgid "URLs"
+msgstr ""
+
+#: includes/views/settings-page.php:209
+msgid "Menu items"
+msgstr ""
+
+#: includes/views/settings-page.php:213
+msgid "Enable single item pages"
+msgstr ""
+
+#: includes/views/settings-page.php:218
+msgid "Enable items archive"
+msgstr ""
+
+#: includes/views/settings-page.php:221
+#: includes/views/settings-page.php:235
+msgid "Permalink base"
+msgstr ""
+
+#: includes/views/settings-page.php:223
+msgid "Shared by archive and singles. Example: menu → /menu/ and /menu/pizza-margherita/"
+msgstr ""
+
+#: includes/views/settings-page.php:228
+msgid "Category archives"
+msgstr ""
+
+#: includes/views/settings-page.php:232
+msgid "Enable category archive pages"
+msgstr ""
+
+#: includes/views/settings-page.php:237
+msgid "Example: menu-category → /menu-category/antipasti/. Must differ from the items base."
+msgstr ""
+
+#: includes/views/settings-page.php:243
+msgid "Display"
+msgstr ""
+
+#: includes/views/settings-page.php:246
+msgid "Layout"
+msgstr ""
+
+#: includes/views/settings-page.php:249
+msgid "Grid"
+msgstr ""
+
+#: includes/views/settings-page.php:250
+msgid "List"
+msgstr ""
+
+#: includes/views/settings-page.php:255
+msgid "Columns"
+msgstr ""
+
+#: includes/views/settings-page.php:262
+msgid "Used only with the grid layout."
+msgstr ""
+
+#: includes/views/settings-page.php:266
+msgid "Show"
+msgstr ""
+
+#: includes/views/settings-page.php:268
+msgid "Images"
+msgstr ""
+
+#: includes/views/settings-page.php:269
+msgid "Descriptions"
+msgstr ""
+
+#: includes/views/settings-page.php:270
+msgid "Prices"
+msgstr ""
+
+#: includes/views/settings-page.php:271
+msgid "Variants"
+msgstr ""
+
+#: includes/views/settings-page.php:275
+msgid "Accent color"
+msgstr ""
+
+#: includes/views/settings-page.php:281
+msgid "Gap"
+msgstr ""
+
+#: includes/views/settings-page.php:284
+msgid "Number plus unit: px, rem, em, or % (for example 1.5rem)."
+msgstr ""
+
+#: includes/views/settings-page.php:288
+msgid "Currency symbol"
+msgstr ""
+
+#: includes/views/settings-page.php:291
+msgid "Shown next to prices (for example €, $, or leave empty for number only)."
+msgstr ""
+
+#: includes/views/settings-page.php:295
+msgid "Currency position"
+msgstr ""
+
+#: includes/views/settings-page.php:298
+msgid "Before price"
+msgstr ""
+
+#: includes/views/settings-page.php:299
+msgid "After price"
+msgstr ""
+
+#: includes/views/settings-page.php:305
+msgid "Save settings"
+msgstr ""
+
+#: includes/views/settings-page.php:310
+msgid "Shortcode:"
+msgstr ""
+
+#: templates/archive-fbmsl_item.php:18
+#: templates/single-fbmsl_item.php:27
+#: templates/taxonomy-fbmsl_category.php:19
+msgid "Menu"
+msgstr ""
+
+#: templates/archive-fbmsl_item.php:28
+msgid "Menu categories"
+msgstr ""
+
+#: templates/menu-list.php:40
+msgid "Other"
+msgstr ""

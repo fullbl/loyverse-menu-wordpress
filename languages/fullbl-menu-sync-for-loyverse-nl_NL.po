@@ -1,0 +1,529 @@
+# Dutch translation for FullBL Menu Sync for Loyverse
+# Copyright (C) FullBL
+# This file is distributed under the same license as the plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: FullBL Menu Sync for Loyverse 0.2.0\n"
+"Report-Msgid-Bugs-To: https://github.com/fullbl/loyverse-menu-wordpress\n"
+"Language: nl_NL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Domain: fullbl-menu-sync-for-loyverse\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. Plugin Name of the plugin
+#: fullbl-menu-sync-for-loyverse.php
+#: includes/class-settings.php:265
+#: includes/class-settings.php:266
+#: includes/views/settings-page.php:19
+msgid "FullBL Menu Sync for Loyverse"
+msgstr "FullBL Menu Sync for Loyverse"
+
+#. Plugin URI of the plugin
+#: fullbl-menu-sync-for-loyverse.php
+msgid "https://github.com/fullbl/loyverse-menu-wordpress"
+msgstr "https://github.com/fullbl/loyverse-menu-wordpress"
+
+#. Description of the plugin
+#: fullbl-menu-sync-for-loyverse.php
+msgid "Sync your Loyverse POS menu to WordPress as real posts and categories."
+msgstr "Synchroniseer je Loyverse POS-menu naar WordPress als berichten en categorieën."
+
+#. Author of the plugin
+#: fullbl-menu-sync-for-loyverse.php
+msgid "FullBL"
+msgstr "FullBL"
+
+#. Author URI of the plugin
+#: fullbl-menu-sync-for-loyverse.php
+msgid "https://fullbl.it"
+msgstr "https://fullbl.it"
+
+#: includes/class-api-client.php:67
+msgid "Loyverse API token is not configured."
+msgstr "Loyverse API-token is niet geconfigureerd."
+
+#: includes/class-api-client.php:285
+msgid "Loyverse API token is invalid or expired."
+msgstr "Loyverse API-token is ongeldig of verlopen."
+
+#: includes/class-api-client.php:301
+msgid "Loyverse API rate limit reached. Sync will retry later."
+msgstr "Loyverse API-limiet bereikt. Synchronisatie probeert later opnieuw."
+
+#: includes/class-api-client.php:302
+msgid "Loyverse API temporarily unavailable."
+msgstr "Loyverse API tijdelijk niet beschikbaar."
+
+#: includes/class-api-client.php:321
+msgid "Loyverse API request failed."
+msgstr "Loyverse API-verzoek mislukt."
+
+#: includes/class-api-client.php:337
+msgid "Invalid JSON from Loyverse API."
+msgstr "Ongeldige JSON van de Loyverse API."
+
+#: includes/class-cpt.php:132
+msgid "Menu Items"
+msgstr "Menuitems"
+
+#: includes/class-cpt.php:133
+msgid "Menu Item"
+msgstr "Menuitem"
+
+#: includes/class-cpt.php:134
+msgid "Add New Menu Item"
+msgstr "Nieuw menuitem toevoegen"
+
+#: includes/class-cpt.php:135
+msgid "Edit Menu Item"
+msgstr "Menuitem bewerken"
+
+#: includes/class-cpt.php:136
+msgid "View Menu Item"
+msgstr "Menuitem bekijken"
+
+#: includes/class-cpt.php:137
+msgid "Search Menu Items"
+msgstr "Menuitems zoeken"
+
+#: includes/class-cpt.php:138
+#: templates/menu-list.php:30
+msgid "No menu items found."
+msgstr "Geen menuitems gevonden."
+
+#: includes/class-cpt.php:163
+msgid "Menu Categories"
+msgstr "Menucategorieën"
+
+#: includes/class-cpt.php:164
+msgid "Menu Category"
+msgstr "Menucategorie"
+
+#: includes/class-cpt.php:165
+msgid "Search Menu Categories"
+msgstr "Menucategorieën zoeken"
+
+#: includes/class-cpt.php:166
+msgid "All Menu Categories"
+msgstr "Alle menucategorieën"
+
+#: includes/class-cpt.php:167
+msgid "Edit Menu Category"
+msgstr "Menucategorie bewerken"
+
+#: includes/class-cpt.php:168
+msgid "Update Menu Category"
+msgstr "Menucategorie bijwerken"
+
+#: includes/class-cpt.php:169
+msgid "Add New Menu Category"
+msgstr "Nieuwe menucategorie toevoegen"
+
+#: includes/class-cpt.php:170
+msgid "New Menu Category Name"
+msgstr "Naam nieuwe menucategorie"
+
+#: includes/class-locks.php:41
+msgid "Sync Locks"
+msgstr "Sync-vergrendelingen"
+
+#: includes/class-locks.php:57
+msgid "Lock title (keep WordPress title on sync)"
+msgstr "Titel vergrendelen (WordPress-titel behouden bij sync)"
+
+#: includes/class-locks.php:58
+msgid "Lock description (keep WordPress content on sync)"
+msgstr "Beschrijving vergrendelen (WordPress-inhoud behouden bij sync)"
+
+#: includes/class-locks.php:59
+msgid "Lock image (keep featured image on sync)"
+msgstr "Afbeelding vergrendelen (uitgelichte afbeelding behouden bij sync)"
+
+#: includes/class-locks.php:76
+msgid "Loyverse ID:"
+msgstr "Loyverse-ID:"
+
+#: includes/class-locks.php:79
+msgid "Price:"
+msgstr "Prijs:"
+
+#: includes/class-locks.php:83
+#: includes/views/settings-page.php:98
+msgid "Last sync:"
+msgstr "Laatste sync:"
+
+#: includes/class-settings.php:243
+msgid "Loyverse API token is invalid or expired. Update it under Settings → FullBL Menu Sync for Loyverse."
+msgstr "Loyverse API-token is ongeldig of verlopen. Werk het bij onder Instellingen → FullBL Menu Sync for Loyverse."
+
+#: includes/class-settings.php:246
+msgid "FullBL Menu Sync for Loyverse:"
+msgstr "FullBL Menu Sync for Loyverse:"
+
+#: includes/class-settings.php:413
+#: includes/class-settings.php:442
+#: includes/class-settings.php:501
+msgid "Forbidden."
+msgstr "Verboden."
+
+#. translators: %d: number of stores
+#: includes/class-settings.php:475
+#, php-format
+msgid "Connection successful. %d store(s) found."
+msgstr "Verbinding geslaagd. %d vestiging(en) gevonden."
+
+#: includes/class-sync-job.php:45
+msgid "Sync already queued; another run is pending."
+msgstr "Sync staat al in de wachtrij; er wacht nog een run."
+
+#. translators: %s: trigger source
+#: includes/class-sync-job.php:62
+#, php-format
+msgid "Sync queued (%s)."
+msgstr "Sync in wachtrij (%s)."
+
+#: includes/class-sync.php:61
+msgid "Sync is already running; a follow-up was queued."
+msgstr "Sync is al bezig; een vervolg is in de wachtrij gezet."
+
+#. translators: 1: phase, 2: source
+#: includes/class-sync.php:104
+#, php-format
+msgid "Sync in progress (%1$s, via %2$s)…"
+msgstr "Sync bezig (%1$s, via %2$s)…"
+
+#. translators: 1: category count, 2: item count
+#: includes/class-sync.php:146
+#, php-format
+msgid "Synced %1$d categories and %2$d items."
+msgstr "%1$d categorieën en %2$d items gesynchroniseerd."
+
+#. translators: 1: phase, 2: items done
+#: includes/class-sync.php:168
+#, php-format
+msgid "Sync progress: %1$s — %2$d items processed."
+msgstr "Sync-voortgang: %1$s — %2$d items verwerkt."
+
+#. translators: %d: seconds
+#: includes/class-sync.php:222
+#, php-format
+msgid "Temporary API issue — retrying in %d seconds."
+msgstr "Tijdelijk API-probleem — opnieuw over %d seconden."
+
+#: includes/class-webhook.php:76
+msgid "Invalid webhook token."
+msgstr "Ongeldig webhook-token."
+
+#: includes/class-webhook.php:144
+#: includes/views/settings-page.php:70
+msgid "Webhook registered."
+msgstr "Webhook geregistreerd."
+
+#: includes/views/settings-page.php:32
+msgid "Sync completed."
+msgstr "Sync voltooid."
+
+#: includes/views/settings-page.php:38
+msgid "Sync started in the background. This page shows live progress."
+msgstr "Sync gestart op de achtergrond. Deze pagina toont live voortgang."
+
+#. translators: %s: error message
+#: includes/views/settings-page.php:45
+#, php-format
+msgid "Sync failed: %s"
+msgstr "Sync mislukt: %s"
+
+#: includes/views/settings-page.php:48
+msgid "Sync failed."
+msgstr "Sync mislukt."
+
+#: includes/views/settings-page.php:54
+msgid "Connection successful."
+msgstr "Verbinding geslaagd."
+
+#. translators: %s: error message
+#: includes/views/settings-page.php:61
+#, php-format
+msgid "Connection failed: %s"
+msgstr "Verbinding mislukt: %s"
+
+#: includes/views/settings-page.php:64
+msgid "Connection failed."
+msgstr "Verbinding mislukt."
+
+#. translators: %s: error message
+#: includes/views/settings-page.php:77
+#, php-format
+msgid "Webhook registration failed: %s"
+msgstr "Webhook-registratie mislukt: %s"
+
+#: includes/views/settings-page.php:80
+msgid "Webhook registration failed."
+msgstr "Webhook-registratie mislukt."
+
+#: includes/views/settings-page.php:95
+msgid "Status"
+msgstr "Status"
+
+#: includes/views/settings-page.php:97
+msgid "Connection:"
+msgstr "Verbinding:"
+
+#: includes/views/settings-page.php:100
+msgid "Sync progress:"
+msgstr "Sync-voortgang:"
+
+#. translators: 1: phase name, 2: items processed
+#: includes/views/settings-page.php:105
+#, php-format
+msgid "In progress — phase %1$s, %2$d items done"
+msgstr "Bezig — fase %1$s, %2$d items klaar"
+
+#: includes/views/settings-page.php:110
+msgid "Idle"
+msgstr "Inactief"
+
+#: includes/views/settings-page.php:115
+msgid "Resync pending:"
+msgstr "Hersync in afwachting:"
+
+#: includes/views/settings-page.php:118
+msgid "Yes"
+msgstr "Ja"
+
+#: includes/views/settings-page.php:118
+msgid "No"
+msgstr "Nee"
+
+#: includes/views/settings-page.php:121
+msgid "Webhook:"
+msgstr "Webhook:"
+
+#: includes/views/settings-page.php:122
+msgid "Last error:"
+msgstr "Laatste fout:"
+
+#: includes/views/settings-page.php:123
+msgid "Message:"
+msgstr "Bericht:"
+
+#: includes/views/settings-page.php:128
+msgid "Sync now"
+msgstr "Nu synchroniseren"
+
+#: includes/views/settings-page.php:131
+msgid "Test connection"
+msgstr "Verbinding testen"
+
+#: includes/views/settings-page.php:134
+msgid "Register webhook"
+msgstr "Webhook registreren"
+
+#: includes/views/settings-page.php:138
+msgid "Webhook URL (needs a public HTTPS URL; use a tunnel for local testing):"
+msgstr "Webhook-URL (publieke HTTPS-URL nodig; gebruik een tunnel voor lokale tests):"
+
+#: includes/views/settings-page.php:146
+msgid "Connection"
+msgstr "Verbinding"
+
+#: includes/views/settings-page.php:149
+msgid "API token"
+msgstr "API-token"
+
+#: includes/views/settings-page.php:152
+msgid "Personal access token from Loyverse Back Office → Integrations → Access Tokens. Leave blank (or ********) to keep the current token."
+msgstr "Persoonlijk toegangstoken uit Loyverse Back Office → Integrations → Access Tokens. Leeg laten (of ********) om het huidige token te behouden."
+
+#: includes/views/settings-page.php:156
+msgid "Store"
+msgstr "Vestiging"
+
+#: includes/views/settings-page.php:160
+msgid "Save an API token first, then Test connection to choose a store."
+msgstr "Sla eerst een API-token op en kies daarna met Verbinding testen een vestiging."
+
+#: includes/views/settings-page.php:163
+msgid "— Select store —"
+msgstr "— Selecteer vestiging —"
+
+#: includes/views/settings-page.php:170
+msgid "Required for inventory/availability. Saved with the settings form."
+msgstr "Vereist voor voorraad/beschikbaarheid. Wordt opgeslagen met het instellingenformulier."
+
+#: includes/views/settings-page.php:173
+msgid "Run Test connection to load stores, or paste the store ID."
+msgstr "Voer Verbinding testen uit om vestigingen te laden, of plak het vestigings-ID."
+
+#: includes/views/settings-page.php:178
+msgid "Automatic sync"
+msgstr "Automatische sync"
+
+#: includes/views/settings-page.php:181
+msgid "Hourly"
+msgstr "Elk uur"
+
+#: includes/views/settings-page.php:182
+msgid "Twice daily"
+msgstr "Tweemaal daags"
+
+#: includes/views/settings-page.php:183
+msgid "Daily"
+msgstr "Dagelijks"
+
+#: includes/views/settings-page.php:188
+msgid "Items removed upstream"
+msgstr "Upstream verwijderde items"
+
+#: includes/views/settings-page.php:191
+msgid "Set to draft (default)"
+msgstr "Instellen als concept (standaard)"
+
+#: includes/views/settings-page.php:192
+msgid "Move to trash"
+msgstr "Naar prullenbak"
+
+#: includes/views/settings-page.php:194
+msgid "Applied only after a complete sync pass. Never matches items by title — only by Loyverse ID."
+msgstr "Alleen na een volledige sync. Items worden nooit op titel gematcht — alleen op Loyverse-ID."
+
+#: includes/views/settings-page.php:197
+msgid "When trashing, delete the plugin-imported featured image (never deletes images you attached manually)"
+msgstr "Bij naar prullenbak: verwijder de door de plugin geïmporteerde uitgelichte afbeelding (verwijdert nooit handmatig toegevoegde afbeeldingen)"
+
+#: includes/views/settings-page.php:206
+msgid "URLs"
+msgstr "URL’s"
+
+#: includes/views/settings-page.php:209
+msgid "Menu items"
+msgstr "Menuitems"
+
+#: includes/views/settings-page.php:213
+msgid "Enable single item pages"
+msgstr "Afzonderlijke itempagina’s inschakelen"
+
+#: includes/views/settings-page.php:218
+msgid "Enable items archive"
+msgstr "Itemsarchief inschakelen"
+
+#: includes/views/settings-page.php:221
+#: includes/views/settings-page.php:235
+msgid "Permalink base"
+msgstr "Permalink-basis"
+
+#: includes/views/settings-page.php:223
+msgid "Shared by archive and singles. Example: menu → /menu/ and /menu/pizza-margherita/"
+msgstr "Gedeeld door archief en singles. Voorbeeld: menu → /menu/ en /menu/pizza-margherita/"
+
+#: includes/views/settings-page.php:228
+msgid "Category archives"
+msgstr "Categoriearchieven"
+
+#: includes/views/settings-page.php:232
+msgid "Enable category archive pages"
+msgstr "Categorie-archiefpagina’s inschakelen"
+
+#: includes/views/settings-page.php:237
+msgid "Example: menu-category → /menu-category/antipasti/. Must differ from the items base."
+msgstr "Voorbeeld: menu-category → /menu-category/antipasti/. Moet verschillen van de items-basis."
+
+#: includes/views/settings-page.php:243
+msgid "Display"
+msgstr "Weergave"
+
+#: includes/views/settings-page.php:246
+msgid "Layout"
+msgstr "Lay-out"
+
+#: includes/views/settings-page.php:249
+msgid "Grid"
+msgstr "Raster"
+
+#: includes/views/settings-page.php:250
+msgid "List"
+msgstr "Lijst"
+
+#: includes/views/settings-page.php:255
+msgid "Columns"
+msgstr "Kolommen"
+
+#: includes/views/settings-page.php:262
+msgid "Used only with the grid layout."
+msgstr "Alleen gebruikt bij rasterlay-out."
+
+#: includes/views/settings-page.php:266
+msgid "Show"
+msgstr "Tonen"
+
+#: includes/views/settings-page.php:268
+msgid "Images"
+msgstr "Afbeeldingen"
+
+#: includes/views/settings-page.php:269
+msgid "Descriptions"
+msgstr "Beschrijvingen"
+
+#: includes/views/settings-page.php:270
+msgid "Prices"
+msgstr "Prijzen"
+
+#: includes/views/settings-page.php:271
+msgid "Variants"
+msgstr "Varianten"
+
+#: includes/views/settings-page.php:275
+msgid "Accent color"
+msgstr "Accentkleur"
+
+#: includes/views/settings-page.php:281
+msgid "Gap"
+msgstr "Tussenruimte"
+
+#: includes/views/settings-page.php:284
+msgid "Number plus unit: px, rem, em, or % (for example 1.5rem)."
+msgstr "Getal plus eenheid: px, rem, em of % (bijv. 1.5rem)."
+
+#: includes/views/settings-page.php:288
+msgid "Currency symbol"
+msgstr "Valutasymbool"
+
+#: includes/views/settings-page.php:291
+msgid "Shown next to prices (for example €, $, or leave empty for number only)."
+msgstr "Getoond naast prijzen (bijv. €, $, of leeg laten alleen voor het getal)."
+
+#: includes/views/settings-page.php:295
+msgid "Currency position"
+msgstr "Positie valuta"
+
+#: includes/views/settings-page.php:298
+msgid "Before price"
+msgstr "Voor de prijs"
+
+#: includes/views/settings-page.php:299
+msgid "After price"
+msgstr "Na de prijs"
+
+#: includes/views/settings-page.php:305
+msgid "Save settings"
+msgstr "Instellingen opslaan"
+
+#: includes/views/settings-page.php:310
+msgid "Shortcode:"
+msgstr "Shortcode:"
+
+#: templates/archive-fbmsl_item.php:18
+#: templates/single-fbmsl_item.php:27
+#: templates/taxonomy-fbmsl_category.php:19
+msgid "Menu"
+msgstr "Menu"
+
+#: templates/archive-fbmsl_item.php:28
+msgid "Menu categories"
+msgstr "Menucategorieën"
+
+#: templates/menu-list.php:40
+msgid "Other"
+msgstr "Overig"
