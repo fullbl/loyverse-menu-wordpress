@@ -27,6 +27,8 @@ class FBMSL_Settings {
 		add_action( 'admin_post_fbmsl_test_connection', array( __CLASS__, 'handle_test_connection' ) );
 		add_action( 'admin_post_fbmsl_register_webhook', array( __CLASS__, 'handle_register_webhook' ) );
 		add_action( 'update_option_' . self::OPTION_KEY, array( __CLASS__, 'maybe_flush_rewrites' ), 10, 2 );
+		// After CPT/taxonomy re-register with new settings (default init priority 10).
+		add_action( 'init', array( __CLASS__, 'maybe_do_deferred_flush' ), 99 );
 	}
 
 	/**
@@ -38,8 +40,10 @@ class FBMSL_Settings {
 		return array(
 			'api_token'                       => '',
 			'store_id'                        => '',
-			'permalink_base'                  => 'menu',
+			'items_base'                      => 'menu',
+			'category_base'                   => 'menu-category',
 			'enable_singles'                  => 1,
+			'enable_items_archive'            => 1,
 			'enable_category_archives'        => 1,
 			'cron_interval'                   => 'hourly',
 			'layout'                          => 'grid',
@@ -123,7 +127,19 @@ class FBMSL_Settings {
 			$stored = array();
 		}
 		$settings = array_merge( self::defaults(), $stored );
-		unset( $settings['custom_css'] );
+		unset( $settings['custom_css'], $settings['permalink_base'] );
+
+		// Migrate legacy single permalink_base → items_base + category_base.
+		if ( ! empty( $stored['permalink_base'] ) && empty( $stored['items_base'] ) ) {
+			$legacy                    = sanitize_title( (string) $stored['permalink_base'] );
+			$settings['items_base']    = $legacy ? $legacy : 'menu';
+			$settings['category_base'] = $settings['items_base'] . '-category';
+		}
+
+		// Pre-split: archive followed singles; default archive on if key missing.
+		if ( ! array_key_exists( 'enable_items_archive', $stored ) ) {
+			$settings['enable_items_archive'] = ! empty( $settings['enable_singles'] ) ? 1 : 0;
+		}
 
 		$token = get_option( 'fbmsl_api_token', '' );
 		if ( is_string( $token ) && '' !== $token ) {
@@ -133,13 +149,31 @@ class FBMSL_Settings {
 			update_option( 'fbmsl_api_token', $settings['api_token'], false );
 		}
 
+		$settings['items_base']        = self::sanitize_permalink_base( $settings['items_base'] ?? 'menu', 'menu' );
+		$settings['category_base']     = self::sanitize_permalink_base( $settings['category_base'] ?? 'menu-category', 'menu-category' );
 		$settings['accent_color']      = self::sanitize_accent_color( $settings['accent_color'] ?? '' );
 		$settings['gap']               = self::sanitize_gap( $settings['gap'] ?? '' );
 		$settings['columns']           = self::sanitize_columns( $settings['columns'] ?? 2 );
 		$settings['currency_symbol']   = self::sanitize_currency_symbol( $settings['currency_symbol'] ?? '' );
 		$settings['currency_position'] = self::sanitize_currency_position( $settings['currency_position'] ?? 'before' );
 
+		if ( $settings['category_base'] === $settings['items_base'] ) {
+			$settings['category_base'] = $settings['items_base'] . '-category';
+		}
+
 		return $settings;
+	}
+
+	/**
+	 * Sanitize a permalink path segment.
+	 *
+	 * @param mixed  $value   Raw value.
+	 * @param string $fallback Fallback slug.
+	 * @return string
+	 */
+	public static function sanitize_permalink_base( $value, string $fallback = 'menu' ): string {
+		$slug = is_string( $value ) || is_numeric( $value ) ? sanitize_title( (string) $value ) : '';
+		return $slug ? $slug : $fallback;
 	}
 
 	/**
@@ -271,12 +305,23 @@ class FBMSL_Settings {
 			$out['api_token'] = sanitize_text_field( $token );
 		}
 
-		$out['store_id']                        = array_key_exists( 'store_id', $input )
+		$out['store_id'] = array_key_exists( 'store_id', $input )
 			? sanitize_text_field( (string) $input['store_id'] )
 			: (string) ( $current['store_id'] ?? '' );
-		$out['permalink_base']                  = isset( $input['permalink_base'] ) ? sanitize_title( (string) $input['permalink_base'] ) : 'menu';
-		$out['enable_singles']                  = empty( $input['enable_singles'] ) ? 0 : 1;
-		$out['enable_category_archives']        = empty( $input['enable_category_archives'] ) ? 0 : 1;
+
+		$out['enable_singles']           = empty( $input['enable_singles'] ) ? 0 : 1;
+		$out['enable_items_archive']     = empty( $input['enable_items_archive'] ) ? 0 : 1;
+		$out['enable_category_archives'] = empty( $input['enable_category_archives'] ) ? 0 : 1;
+
+		$out['items_base'] = array_key_exists( 'items_base', $input )
+			? self::sanitize_permalink_base( $input['items_base'], 'menu' )
+			: self::sanitize_permalink_base( $current['items_base'] ?? 'menu', 'menu' );
+		$out['category_base'] = array_key_exists( 'category_base', $input )
+			? self::sanitize_permalink_base( $input['category_base'], 'menu-category' )
+			: self::sanitize_permalink_base( $current['category_base'] ?? 'menu-category', 'menu-category' );
+		if ( $out['category_base'] === $out['items_base'] ) {
+			$out['category_base'] = $out['items_base'] . '-category';
+		}
 		$out['cron_interval']                   = isset( $input['cron_interval'] ) && in_array( $input['cron_interval'], array( 'hourly', 'twicedaily', 'daily' ), true )
 			? $input['cron_interval']
 			: 'hourly';
@@ -307,29 +352,29 @@ class FBMSL_Settings {
 			: 'draft';
 		$out['delete_imported_image_on_remove'] = empty( $input['delete_imported_image_on_remove'] ) ? 0 : 1;
 
-		if ( empty( $out['permalink_base'] ) ) {
-			$out['permalink_base'] = 'menu';
-		}
-
 		return $out;
 	}
 
 	/**
 	 * Sanitize callback for register_setting (persists token separately).
 	 *
+	 * Must not call update_option() on OPTION_KEY: WordPress already does that after
+	 * this callback, and update_option() re-enters sanitize_option() → OOM.
+	 *
 	 * @param mixed $input Raw input.
 	 * @return array Settings without api_token in the main option.
 	 */
 	public static function sanitize_for_option( $input ): array {
-		$sanitized = self::sanitize( $input );
-		self::persist_settings( $sanitized );
+		$sanitized           = self::sanitize( $input );
+		$token               = isset( $sanitized['api_token'] ) ? (string) $sanitized['api_token'] : '';
+		update_option( 'fbmsl_api_token', $token, false );
 		$stored              = $sanitized;
 		$stored['api_token'] = '';
 		return $stored;
 	}
 
 	/**
-	 * Flush rewrites when permalink-related settings change.
+	 * Mark rewrites for flush on the next request (CPT must re-register first).
 	 *
 	 * @param mixed $old Old value.
 	 * @param mixed $new_value New value.
@@ -337,17 +382,27 @@ class FBMSL_Settings {
 	public static function maybe_flush_rewrites( $old, $new_value ): void {
 		$old       = is_array( $old ) ? $old : array();
 		$new_value = is_array( $new_value ) ? $new_value : array();
-		$keys      = array( 'permalink_base', 'enable_singles', 'enable_category_archives' );
+		$keys      = array( 'items_base', 'category_base', 'enable_singles', 'enable_items_archive', 'enable_category_archives' );
 		foreach ( $keys as $key ) {
 			if ( ( $old[ $key ] ?? null ) !== ( $new_value[ $key ] ?? null ) ) {
-				flush_rewrite_rules();
-				FBMSL_Cron::reschedule();
-				return;
+				update_option( 'fbmsl_flush_rewrites', 1, false );
+				break;
 			}
 		}
 		if ( ( $old['cron_interval'] ?? '' ) !== ( $new_value['cron_interval'] ?? '' ) ) {
 			FBMSL_Cron::reschedule();
 		}
+	}
+
+	/**
+	 * Flush rewrite rules after CPT/taxonomy registered with current settings.
+	 */
+	public static function maybe_do_deferred_flush(): void {
+		if ( ! get_option( 'fbmsl_flush_rewrites' ) ) {
+			return;
+		}
+		flush_rewrite_rules( false );
+		delete_option( 'fbmsl_flush_rewrites' );
 	}
 
 	/**

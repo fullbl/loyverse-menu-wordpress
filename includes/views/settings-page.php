@@ -152,26 +152,28 @@ defined( 'ABSPATH' ) || exit;
 					<p class="description"><?php echo esc_html__( 'Personal access token from Loyverse Back Office → Integrations → Access Tokens. Leave blank (or ********) to keep the current token.', 'fullbl-menu-sync-for-loyverse' ); ?></p>
 				</td>
 			</tr>
-			<?php if ( ! empty( $settings['api_token'] ) ) : ?>
 			<tr>
 				<th scope="row"><label for="fbmsl_store_id"><?php echo esc_html__( 'Store', 'fullbl-menu-sync-for-loyverse' ); ?></label></th>
 				<td>
-					<?php if ( $stores ) : ?>
+					<?php if ( empty( $settings['api_token'] ) ) : ?>
+						<input type="hidden" name="<?php echo esc_attr( FBMSL_Settings::OPTION_KEY ); ?>[store_id]" value="<?php echo esc_attr( (string) $settings['store_id'] ); ?>" />
+						<p class="description"><?php echo esc_html__( 'Save an API token first, then Test connection to choose a store.', 'fullbl-menu-sync-for-loyverse' ); ?></p>
+					<?php elseif ( $stores ) : ?>
 						<select id="fbmsl_store_id" name="<?php echo esc_attr( FBMSL_Settings::OPTION_KEY ); ?>[store_id]">
 							<option value=""><?php echo esc_html__( '— Select store —', 'fullbl-menu-sync-for-loyverse' ); ?></option>
 							<?php foreach ( $stores as $store ) : ?>
-								<option value="<?php echo esc_attr( (string) ( $store['id'] ?? '' ) ); ?>" <?php selected( $settings['store_id'], (string) ( $store['id'] ?? '' ) ); ?>>
+								<option value="<?php echo esc_attr( (string) ( $store['id'] ?? '' ) ); ?>" <?php selected( (string) $settings['store_id'], (string) ( $store['id'] ?? '' ) ); ?>>
 									<?php echo esc_html( (string) ( $store['name'] ?? $store['id'] ) ); ?>
 								</option>
 							<?php endforeach; ?>
 						</select>
+						<p class="description"><?php echo esc_html__( 'Required for inventory/availability. Saved with the settings form.', 'fullbl-menu-sync-for-loyverse' ); ?></p>
 					<?php else : ?>
-						<input type="text" class="regular-text" id="fbmsl_store_id" name="<?php echo esc_attr( FBMSL_Settings::OPTION_KEY ); ?>[store_id]" value="<?php echo esc_attr( $settings['store_id'] ); ?>" />
-						<p class="description"><?php echo esc_html__( 'Save the token and run Test connection to load stores, or paste the store ID.', 'fullbl-menu-sync-for-loyverse' ); ?></p>
+						<input type="text" class="regular-text" id="fbmsl_store_id" name="<?php echo esc_attr( FBMSL_Settings::OPTION_KEY ); ?>[store_id]" value="<?php echo esc_attr( (string) $settings['store_id'] ); ?>" />
+						<p class="description"><?php echo esc_html__( 'Run Test connection to load stores, or paste the store ID.', 'fullbl-menu-sync-for-loyverse' ); ?></p>
 					<?php endif; ?>
 				</td>
 			</tr>
-			<?php endif; ?>
 			<tr>
 				<th scope="row"><label for="fbmsl_cron_interval"><?php echo esc_html__( 'Automatic sync', 'fullbl-menu-sync-for-loyverse' ); ?></label></th>
 				<td>
@@ -198,20 +200,42 @@ defined( 'ABSPATH' ) || exit;
 			</tr>
 		</table>
 
+		<?php
+		$items_url_on = ! empty( $settings['enable_singles'] ) || ! empty( $settings['enable_items_archive'] );
+		?>
 		<h2><?php echo esc_html__( 'URLs', 'fullbl-menu-sync-for-loyverse' ); ?></h2>
 		<table class="form-table" role="presentation">
 			<tr>
-				<th scope="row"><label for="fbmsl_permalink_base"><?php echo esc_html__( 'Permalink base', 'fullbl-menu-sync-for-loyverse' ); ?></label></th>
+				<th scope="row"><?php echo esc_html__( 'Menu items', 'fullbl-menu-sync-for-loyverse' ); ?></th>
 				<td>
-					<input type="text" class="regular-text" id="fbmsl_permalink_base" name="<?php echo esc_attr( FBMSL_Settings::OPTION_KEY ); ?>[permalink_base]" value="<?php echo esc_attr( $settings['permalink_base'] ); ?>" />
-					<p class="description"><?php echo esc_html__( 'Default: menu → items at /menu/{slug}/, categories at /menu-category/{slug}/.', 'fullbl-menu-sync-for-loyverse' ); ?></p>
+					<label>
+						<input type="checkbox" id="fbmsl_enable_singles" name="<?php echo esc_attr( FBMSL_Settings::OPTION_KEY ); ?>[enable_singles]" value="1" <?php checked( $settings['enable_singles'] ); ?> />
+						<?php echo esc_html__( 'Enable single item pages', 'fullbl-menu-sync-for-loyverse' ); ?>
+					</label>
+					<br />
+					<label>
+						<input type="checkbox" id="fbmsl_enable_items_archive" name="<?php echo esc_attr( FBMSL_Settings::OPTION_KEY ); ?>[enable_items_archive]" value="1" <?php checked( ! empty( $settings['enable_items_archive'] ) ); ?> />
+						<?php echo esc_html__( 'Enable items archive', 'fullbl-menu-sync-for-loyverse' ); ?>
+					</label>
+					<div id="fbmsl_items_permalink_wrap" class="fbmsl-conditional<?php echo $items_url_on ? '' : ' fbmsl-is-hidden'; ?>">
+						<label for="fbmsl_items_base" class="fbmsl-inline-label"><?php echo esc_html__( 'Permalink base', 'fullbl-menu-sync-for-loyverse' ); ?></label>
+						<input type="text" class="regular-text" id="fbmsl_items_base" name="<?php echo esc_attr( FBMSL_Settings::OPTION_KEY ); ?>[items_base]" value="<?php echo esc_attr( $settings['items_base'] ); ?>" />
+						<p class="description"><?php echo esc_html__( 'Shared by archive and singles. Example: menu → /menu/ and /menu/pizza-margherita/', 'fullbl-menu-sync-for-loyverse' ); ?></p>
+					</div>
 				</td>
 			</tr>
 			<tr>
-				<th scope="row"><?php echo esc_html__( 'Archives', 'fullbl-menu-sync-for-loyverse' ); ?></th>
+				<th scope="row"><?php echo esc_html__( 'Category archives', 'fullbl-menu-sync-for-loyverse' ); ?></th>
 				<td>
-					<label><input type="checkbox" name="<?php echo esc_attr( FBMSL_Settings::OPTION_KEY ); ?>[enable_singles]" value="1" <?php checked( $settings['enable_singles'] ); ?> /> <?php echo esc_html__( 'Enable single item pages', 'fullbl-menu-sync-for-loyverse' ); ?></label><br />
-					<label><input type="checkbox" name="<?php echo esc_attr( FBMSL_Settings::OPTION_KEY ); ?>[enable_category_archives]" value="1" <?php checked( $settings['enable_category_archives'] ); ?> /> <?php echo esc_html__( 'Enable category archive pages', 'fullbl-menu-sync-for-loyverse' ); ?></label>
+					<label>
+						<input type="checkbox" id="fbmsl_enable_category_archives" name="<?php echo esc_attr( FBMSL_Settings::OPTION_KEY ); ?>[enable_category_archives]" value="1" <?php checked( $settings['enable_category_archives'] ); ?> />
+						<?php echo esc_html__( 'Enable category archive pages', 'fullbl-menu-sync-for-loyverse' ); ?>
+					</label>
+					<div class="fbmsl-conditional<?php echo empty( $settings['enable_category_archives'] ) ? ' fbmsl-is-hidden' : ''; ?>" data-fbmsl-show-when="fbmsl_enable_category_archives">
+						<label for="fbmsl_category_base" class="fbmsl-inline-label"><?php echo esc_html__( 'Permalink base', 'fullbl-menu-sync-for-loyverse' ); ?></label>
+						<input type="text" class="regular-text" id="fbmsl_category_base" name="<?php echo esc_attr( FBMSL_Settings::OPTION_KEY ); ?>[category_base]" value="<?php echo esc_attr( $settings['category_base'] ); ?>" />
+						<p class="description"><?php echo esc_html__( 'Example: menu-category → /menu-category/antipasti/. Must differ from the items base.', 'fullbl-menu-sync-for-loyverse' ); ?></p>
+					</div>
 				</td>
 			</tr>
 		</table>
@@ -227,7 +251,7 @@ defined( 'ABSPATH' ) || exit;
 					</select>
 				</td>
 			</tr>
-			<tr>
+			<tr class="fbmsl-columns-row<?php echo ( 'list' === $settings['layout'] ) ? ' fbmsl-is-hidden' : ''; ?>">
 				<th scope="row"><label for="fbmsl_columns"><?php echo esc_html__( 'Columns', 'fullbl-menu-sync-for-loyverse' ); ?></label></th>
 				<td>
 					<select id="fbmsl_columns" name="<?php echo esc_attr( FBMSL_Settings::OPTION_KEY ); ?>[columns]">
@@ -235,6 +259,7 @@ defined( 'ABSPATH' ) || exit;
 							<option value="<?php echo esc_attr( (string) $col ); ?>" <?php selected( (int) $settings['columns'], $col ); ?>><?php echo esc_html( (string) $col ); ?></option>
 						<?php endforeach; ?>
 					</select>
+					<p class="description"><?php echo esc_html__( 'Used only with the grid layout.', 'fullbl-menu-sync-for-loyverse' ); ?></p>
 				</td>
 			</tr>
 			<tr>

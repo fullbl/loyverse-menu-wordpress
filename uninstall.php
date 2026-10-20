@@ -16,6 +16,7 @@ delete_option( 'fbmsl_db_version' );
 delete_option( 'fbmsl_sync_lock' );
 delete_option( 'fbmsl_sync_checkpoint' );
 delete_option( 'fbmsl_resync_pending' );
+delete_option( 'fbmsl_flush_rewrites' );
 
 wp_clear_scheduled_hook( 'fbmsl_cron_sync' );
 wp_clear_scheduled_hook( 'fbmsl_run_sync_batch' );

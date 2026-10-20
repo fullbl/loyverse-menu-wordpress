@@ -21,6 +21,7 @@ class FBMSL_CPT {
 	public static function init(): void {
 		add_action( 'init', array( __CLASS__, 'register' ) );
 		add_action( 'init', array( __CLASS__, 'register_meta' ), 20 );
+		add_action( 'template_redirect', array( __CLASS__, 'maybe_block_disabled_views' ) );
 	}
 
 	/**
@@ -82,13 +83,47 @@ class FBMSL_CPT {
 	}
 
 	/**
+	 * 404 front views that are disabled in settings (WP still may register rewrite stubs).
+	 */
+	public static function maybe_block_disabled_views(): void {
+		$settings = FBMSL_Settings::get_settings();
+
+		if ( is_singular( self::POST_TYPE ) && empty( $settings['enable_singles'] ) ) {
+			self::force_404();
+			return;
+		}
+
+		if ( is_post_type_archive( self::POST_TYPE ) && empty( $settings['enable_items_archive'] ) ) {
+			self::force_404();
+			return;
+		}
+
+		if ( is_tax( self::TAXONOMY ) && empty( $settings['enable_category_archives'] ) ) {
+			self::force_404();
+		}
+	}
+
+	/**
+	 * Force a front-end 404 response.
+	 */
+	private static function force_404(): void {
+		global $wp_query;
+		$wp_query->set_404();
+		status_header( 404 );
+		nocache_headers();
+	}
+
+	/**
 	 * Register CPT and taxonomy.
 	 */
 	public static function register(): void {
 		$settings      = FBMSL_Settings::get_settings();
-		$slug          = ! empty( $settings['permalink_base'] ) ? sanitize_title( $settings['permalink_base'] ) : 'menu';
+		$items_base    = ! empty( $settings['items_base'] ) ? (string) $settings['items_base'] : 'menu';
+		$category_base = ! empty( $settings['category_base'] ) ? (string) $settings['category_base'] : 'menu-category';
 		$enable_single = ! empty( $settings['enable_singles'] );
+		$enable_archive = ! empty( $settings['enable_items_archive'] );
 		$enable_cats   = ! empty( $settings['enable_category_archives'] );
+		$front_items   = $enable_single || $enable_archive;
 
 		register_post_type(
 			self::POST_TYPE,
@@ -103,23 +138,22 @@ class FBMSL_CPT {
 					'not_found'     => __( 'No menu items found.', 'fullbl-menu-sync-for-loyverse' ),
 				),
 				'public'             => true,
-				'has_archive'        => $slug,
-				'publicly_queryable' => $enable_single,
+				'has_archive'        => $enable_archive ? $items_base : false,
+				'publicly_queryable' => $front_items,
 				'show_ui'            => true,
 				'show_in_menu'       => true,
 				'show_in_rest'       => true,
 				'menu_icon'          => 'dashicons-food',
 				'supports'           => array( 'title', 'editor', 'thumbnail', 'excerpt', 'custom-fields' ),
-				'rewrite'            => array(
-					'slug'       => $slug,
-					'with_front' => false,
-				),
+				'rewrite'            => $front_items
+					? array(
+						'slug'       => $items_base,
+						'with_front' => false,
+					)
+					: false,
 				'capability_type'    => 'post',
 			)
 		);
-
-		// Distinct base so /{base}/{term}/ does not collide with item rewrites under /{base}/{item}/.
-		$category_slug = $slug . '-category';
 
 		register_taxonomy(
 			self::TAXONOMY,
@@ -143,7 +177,7 @@ class FBMSL_CPT {
 				'show_in_rest'       => true,
 				'rewrite'            => $enable_cats
 					? array(
-						'slug'         => $category_slug,
+						'slug'         => $category_base,
 						'with_front'   => false,
 						'hierarchical' => true,
 					)

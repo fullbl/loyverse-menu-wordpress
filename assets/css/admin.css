@@ -22,3 +22,18 @@
 	margin-top: 0.35rem;
 	word-break: break-all;
 }
+
+.fbmsl-settings .fbmsl-conditional {
+	margin-top: 0.75rem;
+}
+
+.fbmsl-settings .fbmsl-inline-label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 0.25rem;
+}
+
+/* Prefer class over [hidden] so <tr> toggles reliably in admin tables. */
+.fbmsl-settings .fbmsl-is-hidden {
+	display: none !important;
+}

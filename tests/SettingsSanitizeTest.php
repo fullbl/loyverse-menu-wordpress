@@ -131,4 +131,29 @@ class SettingsSanitizeTest extends TestCase {
 		);
 		$this->assertSame( 'draft', $result2['removed_items_action'] );
 	}
+
+	public function test_sanitize_permalink_bases_must_differ(): void {
+		$result = FBMSL_Settings::sanitize(
+			array(
+				'api_token'     => 'tok',
+				'items_base'    => 'food',
+				'category_base' => 'food',
+			)
+		);
+		$this->assertSame( 'food', $result['items_base'] );
+		$this->assertSame( 'food-category', $result['category_base'] );
+		$this->assertArrayNotHasKey( 'permalink_base', $result );
+	}
+
+	public function test_sanitize_items_archive_toggle(): void {
+		$result = FBMSL_Settings::sanitize(
+			array(
+				'api_token'            => 'tok',
+				'enable_singles'       => 1,
+				'enable_items_archive' => 0,
+			)
+		);
+		$this->assertSame( 1, $result['enable_singles'] );
+		$this->assertSame( 0, $result['enable_items_archive'] );
+	}
 }

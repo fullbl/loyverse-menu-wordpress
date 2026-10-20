@@ -59,18 +59,20 @@ class FBMSL_Assets {
 		if ( 'settings_page_fullbl-menu-sync-for-loyverse' !== $hook ) {
 			return;
 		}
+		$css_ver = (string) filemtime( FBMSL_PLUGIN_DIR . 'assets/css/admin.css' );
+		$js_ver  = (string) filemtime( FBMSL_PLUGIN_DIR . 'assets/js/admin.js' );
 		wp_enqueue_style( 'wp-color-picker' );
 		wp_enqueue_style(
 			'fbmsl-admin',
 			FBMSL_PLUGIN_URL . 'assets/css/admin.css',
 			array( 'wp-color-picker' ),
-			FBMSL_VERSION
+			$css_ver
 		);
 		wp_enqueue_script(
 			'fbmsl-admin',
 			FBMSL_PLUGIN_URL . 'assets/js/admin.js',
 			array( 'wp-color-picker', 'jquery' ),
-			FBMSL_VERSION,
+			$js_ver,
 			true
 		);
 	}

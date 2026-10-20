@@ -97,6 +97,7 @@ Plugin options, the webhook secret, and scheduled cron events are removed. Synce
 * Skips unchanged items via a sync hash; images re-download only when the Loyverse URL changes.
 * Setting for items removed upstream (draft or trash); optional cleanup of plugin-imported images only.
 * Admin status shows last run, in-progress phase/items, pending flag, and last error.
+* Settings UX: separate toggles for single pages, items archive, and category archives (each with its permalink); columns hidden for list layout; store selection always saved; deferred rewrite flush; fix fatal memory error on Save settings.
 
 = 0.1.0 =
 * Initial public release.
